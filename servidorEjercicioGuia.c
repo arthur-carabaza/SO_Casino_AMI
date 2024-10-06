@@ -11,7 +11,8 @@
 
 
 // Función para insertar un usuario en la base de datos
-void insertar_usuario(const char* usuario, const char* contraseña) {
+void insertar_usuario(const char* usuario, const char* contrasena) 
+{
 	MYSQL* conn;
 	char query[256];
 
@@ -20,7 +21,7 @@ void insertar_usuario(const char* usuario, const char* contraseña) {
 
 
 	// Crear la consulta SQL para insertar un nuevo usuario
-	snprintf(query, sizeof(query), "INSERT INTO Jugadores (usuario, password) VALUES ('%s', '%s')", usuario, contraseña);
+	sprintf(query, sizeof(query), "INSERT INTO Jugadores (usuario, password) VALUES ('%s', '%s')", usuario, contrasena);
 
 	// Ejecutar la consulta
 	if (mysql_query(conn, query)) {
@@ -35,7 +36,7 @@ void insertar_usuario(const char* usuario, const char* contraseña) {
 	printf("Conexión cerrada.\n");
 }
 
-void verificar_usuario(const char* usuario, const char* contraseña) {
+void verificar_usuario(const char* usuario, const char* contrasena) {
 	MYSQL* conn;
 	MYSQL_RES* res;
 
@@ -43,11 +44,7 @@ void verificar_usuario(const char* usuario, const char* contraseña) {
 	// Inicializar la conexión
 	conn = mysql_init(NULL);
 
-	// Conectar a MySQL
-	if (!mysql_real_connect(conn, server, user, password, database, 0, NULL, 0)) {
-		fprintf(stderr, "Error de conexión: %s\n", mysql_error(conn));
-		exit(1);
-	}
+
 
 	printf("Conexión abierta exitosamente.\n");
 
@@ -66,7 +63,7 @@ void verificar_usuario(const char* usuario, const char* contraseña) {
 	res = mysql_store_result(conn);
 
 	// Comprobar si se encontró el usuario con la contraseña correcta
-	if (strcmp(res,contraseña) == 0) {
+	if (strcmp(res,contrasena) == 0) {
 		printf("La contraseña es correcta para el usuario '%s'.\n", usuario);
 		return 0;
 	}
@@ -90,7 +87,7 @@ char obtener_dinero(const char* usuario) {
 	// Conectar a la base de datos
 	conn = mysql_init(NULL);
 
-	char query[MAX_BUFFER];
+	char query[500];
 	snprintf(query, sizeof(query), "SELECT dinero FROM usuarios WHERE usuario='%s'", usuario);
 	mysql_query(conn, query);
 
@@ -122,7 +119,7 @@ char obtener_victorias(const char* usuario) {
 	// Conectar a la base de datos
 	conn = mysql_init(NULL);
 
-	char query[MAX_BUFFER];
+	char query[500];
 	snprintf(query, sizeof(query), "SELECT victorias FROM usuarios WHERE usuario='%s'", usuario);
 	mysql_query(conn, query);
 
@@ -166,7 +163,7 @@ int main(int argc, char *argv[])
 	//htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	// escucharemos en el port 9050
-	serv_adr.sin_port = htons(9050);
+	serv_adr.sin_port = htons(50000);
 
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
@@ -203,7 +200,7 @@ int main(int argc, char *argv[])
 			int codigo =  atoi (p);
 			//Ya tenemos codigo de peticion
 			char nombre[20];
-			char contraseña[20];
+			char contrasena[20];
 
 			if (codigo !=0)
 			{ 
@@ -229,16 +226,16 @@ int main(int argc, char *argv[])
 				p = strtok(NULL, "/");
 				strcpy(nombre, p);
 
-				P = strtok(NULL, "/");
-				strcpy(contraseña, p);
+				p = strtok(NULL, "/");
+				strcpy(contrasena, p);
 
-				insertar_usuario(nombre, contraseña);
+				insertar_usuario(nombre, contrasena);
 				return 0;
 				
 			}
 
 
-		}
+		
 
 			else if (codigo ==2) //Quieren saber si el nombre es bonito 
 			{ 
