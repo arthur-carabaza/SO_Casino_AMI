@@ -34,15 +34,15 @@ namespace WindowsFormsApplication1
             this.nombre = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.registrarse = new System.Windows.Forms.Button();
+            this.login = new System.Windows.Forms.Button();
+            this.Cartas = new System.Windows.Forms.RadioButton();
+            this.Victorias = new System.Windows.Forms.RadioButton();
             this.label1 = new System.Windows.Forms.Label();
-            this.Altura = new System.Windows.Forms.TextBox();
-            this.Alto = new System.Windows.Forms.RadioButton();
-            this.Longitud = new System.Windows.Forms.RadioButton();
-            this.Bonito = new System.Windows.Forms.RadioButton();
+            this.Password = new System.Windows.Forms.TextBox();
+            this.Dinero = new System.Windows.Forms.RadioButton();
             this.conectar = new System.Windows.Forms.Button();
             this.desconectar = new System.Windows.Forms.Button();
-            this.mayusculas = new System.Windows.Forms.RadioButton();
-            this.Palindromo = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -59,7 +59,7 @@ namespace WindowsFormsApplication1
             // 
             // nombre
             // 
-            this.nombre.Location = new System.Drawing.Point(155, 38);
+            this.nombre.Location = new System.Drawing.Point(178, 40);
             this.nombre.Margin = new System.Windows.Forms.Padding(4);
             this.nombre.Name = "nombre";
             this.nombre.Size = new System.Drawing.Size(217, 22);
@@ -79,13 +79,13 @@ namespace WindowsFormsApplication1
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.groupBox1.Controls.Add(this.Palindromo);
-            this.groupBox1.Controls.Add(this.mayusculas);
+            this.groupBox1.Controls.Add(this.registrarse);
+            this.groupBox1.Controls.Add(this.login);
+            this.groupBox1.Controls.Add(this.Cartas);
+            this.groupBox1.Controls.Add(this.Victorias);
             this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Controls.Add(this.Altura);
-            this.groupBox1.Controls.Add(this.Alto);
-            this.groupBox1.Controls.Add(this.Longitud);
-            this.groupBox1.Controls.Add(this.Bonito);
+            this.groupBox1.Controls.Add(this.Password);
+            this.groupBox1.Controls.Add(this.Dinero);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.button2);
             this.groupBox1.Controls.Add(this.nombre);
@@ -98,6 +98,52 @@ namespace WindowsFormsApplication1
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Peticion";
             // 
+            // registrarse
+            // 
+            this.registrarse.Location = new System.Drawing.Point(198, 135);
+            this.registrarse.Margin = new System.Windows.Forms.Padding(4);
+            this.registrarse.Name = "registrarse";
+            this.registrarse.Size = new System.Drawing.Size(138, 28);
+            this.registrarse.TabIndex = 14;
+            this.registrarse.Text = "Registrarse";
+            this.registrarse.UseVisualStyleBackColor = true;
+            this.registrarse.Click += new System.EventHandler(this.registrarse_Click);
+            // 
+            // login
+            // 
+            this.login.Location = new System.Drawing.Point(37, 135);
+            this.login.Margin = new System.Windows.Forms.Padding(4);
+            this.login.Name = "login";
+            this.login.Size = new System.Drawing.Size(138, 28);
+            this.login.TabIndex = 13;
+            this.login.Text = "Iniciar Session";
+            this.login.UseVisualStyleBackColor = true;
+            this.login.Click += new System.EventHandler(this.login_Click);
+            // 
+            // Cartas
+            // 
+            this.Cartas.AutoSize = true;
+            this.Cartas.Location = new System.Drawing.Point(155, 254);
+            this.Cartas.Margin = new System.Windows.Forms.Padding(4);
+            this.Cartas.Name = "Cartas";
+            this.Cartas.Size = new System.Drawing.Size(130, 20);
+            this.Cartas.TabIndex = 12;
+            this.Cartas.TabStop = true;
+            this.Cartas.Text = "Que cartas tengo";
+            this.Cartas.UseVisualStyleBackColor = true;
+            // 
+            // Victorias
+            // 
+            this.Victorias.AutoSize = true;
+            this.Victorias.Location = new System.Drawing.Point(155, 226);
+            this.Victorias.Margin = new System.Windows.Forms.Padding(4);
+            this.Victorias.Name = "Victorias";
+            this.Victorias.Size = new System.Drawing.Size(195, 20);
+            this.Victorias.TabIndex = 11;
+            this.Victorias.TabStop = true;
+            this.Victorias.Text = "Dime cuantas victorias llevo";
+            this.Victorias.UseVisualStyleBackColor = true;
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -105,53 +151,29 @@ namespace WindowsFormsApplication1
             this.label1.Location = new System.Drawing.Point(31, 68);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(85, 31);
+            this.label1.Size = new System.Drawing.Size(134, 31);
             this.label1.TabIndex = 10;
-            this.label1.Text = "Altura";
+            this.label1.Text = "Password";
             // 
-            // Altura
+            // Password
             // 
-            this.Altura.Location = new System.Drawing.Point(155, 77);
-            this.Altura.Margin = new System.Windows.Forms.Padding(4);
-            this.Altura.Name = "Altura";
-            this.Altura.Size = new System.Drawing.Size(217, 22);
-            this.Altura.TabIndex = 9;
+            this.Password.Location = new System.Drawing.Point(178, 77);
+            this.Password.Margin = new System.Windows.Forms.Padding(4);
+            this.Password.Name = "Password";
+            this.Password.Size = new System.Drawing.Size(217, 22);
+            this.Password.TabIndex = 9;
             // 
-            // Alto
+            // Dinero
             // 
-            this.Alto.AutoSize = true;
-            this.Alto.Location = new System.Drawing.Point(155, 198);
-            this.Alto.Margin = new System.Windows.Forms.Padding(4);
-            this.Alto.Name = "Alto";
-            this.Alto.Size = new System.Drawing.Size(123, 20);
-            this.Alto.TabIndex = 8;
-            this.Alto.TabStop = true;
-            this.Alto.Text = "Dime si soy alto";
-            this.Alto.UseVisualStyleBackColor = true;
-            // 
-            // Longitud
-            // 
-            this.Longitud.AutoSize = true;
-            this.Longitud.Location = new System.Drawing.Point(155, 170);
-            this.Longitud.Margin = new System.Windows.Forms.Padding(4);
-            this.Longitud.Name = "Longitud";
-            this.Longitud.Size = new System.Drawing.Size(209, 20);
-            this.Longitud.TabIndex = 7;
-            this.Longitud.TabStop = true;
-            this.Longitud.Text = "Dime la longitud de mi nombre";
-            this.Longitud.UseVisualStyleBackColor = true;
-            // 
-            // Bonito
-            // 
-            this.Bonito.AutoSize = true;
-            this.Bonito.Location = new System.Drawing.Point(155, 142);
-            this.Bonito.Margin = new System.Windows.Forms.Padding(4);
-            this.Bonito.Name = "Bonito";
-            this.Bonito.Size = new System.Drawing.Size(197, 20);
-            this.Bonito.TabIndex = 8;
-            this.Bonito.TabStop = true;
-            this.Bonito.Text = "Dime si mi nombre es bonito";
-            this.Bonito.UseVisualStyleBackColor = true;
+            this.Dinero.AutoSize = true;
+            this.Dinero.Location = new System.Drawing.Point(155, 198);
+            this.Dinero.Margin = new System.Windows.Forms.Padding(4);
+            this.Dinero.Name = "Dinero";
+            this.Dinero.Size = new System.Drawing.Size(181, 20);
+            this.Dinero.TabIndex = 8;
+            this.Dinero.TabStop = true;
+            this.Dinero.Text = "Dime cuanto dinero tengo";
+            this.Dinero.UseVisualStyleBackColor = true;
             // 
             // conectar
             // 
@@ -174,30 +196,6 @@ namespace WindowsFormsApplication1
             this.desconectar.Text = "Desconectar";
             this.desconectar.UseVisualStyleBackColor = true;
             this.desconectar.Click += new System.EventHandler(this.desconectar_Click);
-            // 
-            // mayusculas
-            // 
-            this.mayusculas.AutoSize = true;
-            this.mayusculas.Location = new System.Drawing.Point(155, 254);
-            this.mayusculas.Margin = new System.Windows.Forms.Padding(4);
-            this.mayusculas.Name = "mayusculas";
-            this.mayusculas.Size = new System.Drawing.Size(330, 25);
-            this.mayusculas.TabIndex = 11;
-            this.mayusculas.TabStop = true;
-            this.mayusculas.Text = "Devuelveme mi nombre en mayúsculas\r\n";
-            this.mayusculas.UseVisualStyleBackColor = true;
-            // 
-            // Palindromo
-            // 
-            this.Palindromo.AutoSize = true;
-            this.Palindromo.Location = new System.Drawing.Point(155, 226);
-            this.Palindromo.Margin = new System.Windows.Forms.Padding(4);
-            this.Palindromo.Name = "Palindromo";
-            this.Palindromo.Size = new System.Drawing.Size(281, 25);
-            this.Palindromo.TabIndex = 12;
-            this.Palindromo.TabStop = true;
-            this.Palindromo.Text = "Dime si mi nombre el Palindromo";
-            this.Palindromo.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -223,15 +221,15 @@ namespace WindowsFormsApplication1
         private System.Windows.Forms.TextBox nombre;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.RadioButton Longitud;
-        private System.Windows.Forms.RadioButton Bonito;
-        private System.Windows.Forms.RadioButton Alto;
+        private System.Windows.Forms.RadioButton Dinero;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox Altura;
+        private System.Windows.Forms.TextBox Password;
         private System.Windows.Forms.Button conectar;
         private System.Windows.Forms.Button desconectar;
-        private System.Windows.Forms.RadioButton Palindromo;
-        private System.Windows.Forms.RadioButton mayusculas;
+        private System.Windows.Forms.RadioButton Victorias;
+        private System.Windows.Forms.RadioButton Cartas;
+        private System.Windows.Forms.Button registrarse;
+        private System.Windows.Forms.Button login;
     }
 }
 
