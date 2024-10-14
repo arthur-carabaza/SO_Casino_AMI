@@ -13,9 +13,11 @@ int main(int argc, char *argv[])
 	struct sockaddr_in serv_adr;
 	char peticion[512];
 	char respuesta[512];
+	int session_iniciada = 0;
+	char usuario_logueado [100];
 
-	MYSQL* conn;
-	MYSQL_RES* res;
+	MYSQL *conn;
+	MYSQL_RES *res;
 	MYSQL_ROW row;
 	int err;
 
@@ -27,7 +29,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	if (mysql_real_connect(conn, "localhost", "usuario", "contraseña", "JuegoPoker", 0, NULL, 0) == NULL) 
+	if (mysql_real_connect(conn, "localhost", "root", "mysql", "JuegoPoker", 0, NULL, 0) == NULL) 
 	{
 		printf("Error al inicializar la conexión con la base de datos: %u %s\n", mysql_errno(conn), mysql_error(conn));
 		mysql_close(conn);
@@ -127,6 +129,8 @@ int main(int argc, char *argv[])
 						if (strcmp(row[0], password) == 0) 
 						{
 							sprintf(respuesta, "Inicio de sesión correcto");
+							strcpy(usuario_logueado, nombre);
+							session_iniciada = 1;
 						}
 						else 
 						{
@@ -156,23 +160,100 @@ int main(int argc, char *argv[])
 						sprintf(respuesta, "Error al registrarse");
 					}
 				}
-				else {
+				else 
+				{
 					sprintf(respuesta, "Registro exitoso");
-
+				}
 			}
+			
 
 			else if (codigo ==3) //quiere saber cuanto dinero tiene
 			{
+				char query[256];
+				sprintf(query, "SELECT dinero FROM Jugadores WHERE usuario='%s'", usuario_logueado);
 
+				err = mysql_query(conn, query);
+				if (err != 0)
+				{
+					printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
+					sprintf(respuesta, "Error en la base de datos");
+				}
+				else
+				{
+					res = mysql_store_result(conn);
+					row = mysql_fetch_row(res);
+					if (row == NULL)
+					{
+						sprintf(respuesta, "El usuario no existe");
+					}
+					else
+					{
+						sprintf(respuesta, "Dinero disponible: %.2f", atof(row[0]));
+					}
+					mysql_free_result(res);
+				}
 			}
 
 			else if (codigo == 4) //quiere saber cuantas partidas ha ganado
 			{
-				
+				char query[256];
+				sprintf(query, "SELECT victorias FROM Jugadores WHERE usuario='%s'", usuario_logueado);
+
+				err = mysql_query(conn, query);
+				if (err != 0)
+				{
+					printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
+					sprintf(respuesta, "Error en la base de datos");
+				}
+				else
+				{
+					res = mysql_store_result(conn);
+					row = mysql_fetch_row(res);
+					if (row == NULL)
+					{
+						sprintf(respuesta, "El usuario no existe");
+					}
+					else
+					{
+						sprintf(respuesta, "Partidas ganadas: %d", atoi(row[0]));
+					}
+					mysql_free_result(res);
+				}
 			}
+				
 
 			else if (codigo ==5) //quiere saber que cartas tiene
 			{
+				char query[256];
+				sprintf(query, "SELECT cartas FROM Jugadores WHERE usuario='%s'", usuario_logueado);
+
+				err = mysql_query(conn, query);
+				if (err != 0)
+				{
+					printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
+					sprintf(respuesta, "Error en la base de datos");
+				}
+				else
+				{
+					res = mysql_store_result(conn);
+					row = mysql_fetch_row(res);
+					if (row == NULL)
+					{
+						sprintf(respuesta, "El usuario no existe");
+					}
+					else
+					{
+						if (row[0] == NULL || strcmp(row[0], "") == 0)
+						{
+							sprintf(respuesta, "No tienes cartas");
+						}
+						else
+						{
+							sprintf(respuesta, "Tus cartas: %s", row[0]);
+						}
+					}
+					mysql_free_result(res);
+				}
 			
 			}
 

@@ -146,6 +146,11 @@ namespace WindowsFormsApplication1
             MessageBox.Show(mensaje);
 
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
      
 }
