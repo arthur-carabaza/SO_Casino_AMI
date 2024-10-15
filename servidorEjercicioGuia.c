@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdio.h>
+#include <mysql/mysql.h>
 
 int main(int argc, char *argv[])
 {
@@ -12,6 +13,29 @@ int main(int argc, char *argv[])
 	struct sockaddr_in serv_adr;
 	char peticion[512];
 	char respuesta[512];
+	int session_iniciada = 0;
+	char usuario_logueado [100];
+
+	MYSQL *conn;
+	MYSQL_RES *res;
+	MYSQL_ROW row;
+	int err;
+
+	// Conexión a la base de datos MySQL
+	conn = mysql_init(NULL);
+	if (conn == NULL) 
+	{
+		printf("Error al crear la conexión MySQL: %u %s\n", mysql_errno(conn), mysql_error(conn));
+		exit(1);
+	}
+
+	if (mysql_real_connect(conn, "localhost", "root", "mysql", "JuegoPoker", 0, NULL, 0) == NULL) 
+	{
+		printf("Error al inicializar la conexión con la base de datos: %u %s\n", mysql_errno(conn), mysql_error(conn));
+		mysql_close(conn);
+		exit(1);
+	}
+
 
 	// INICIALITZACIONS
 	// Obrim el socket
@@ -25,7 +49,7 @@ int main(int argc, char *argv[])
 	//htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	// escucharemos en el port 9050
-	serv_adr.sin_port = htons(9050);
+	serv_adr.sin_port = htons(50000);
 
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
@@ -35,7 +59,8 @@ int main(int argc, char *argv[])
 
 	int i;
 	//bucle infinito
-	for (;;) {
+	for (;;) 
+	{
 		printf ("Escuchando\n");
 		
 		sock_conn = accept(sock_listen, NULL, NULL);
@@ -62,6 +87,7 @@ int main(int argc, char *argv[])
 			int codigo =  atoi (p);
 			//Ya tenemos codigo de peticion
 			char nombre[20];
+			char password[20];
 
 			if (codigo !=0)
 			{ 
@@ -75,63 +101,160 @@ int main(int argc, char *argv[])
 			if (codigo == 0)
 				terminar = 1;
 			
-			else if (codigo ==1) //piden la longitd del nombre
-			{ 
-				sprintf (respuesta,"%d",strlen (nombre));
-			}
-
-			else if (codigo ==2) //Quieren saber si el nombre es bonito 
-			{ 
-		
-				if((nombre[0]=='M') || (nombre[0]=='S')) 
-					strcpy (respuesta,"SI");
-			
-				else
-					strcpy (respuesta,"NO");
-			}
-
-			else if (codigo ==3) //decir si es alto
+			else if (codigo ==1) //piden iniciar session
 			{
 				p = strtok(NULL, "/");
-				float altura = atof(p);
-				if (altura > 1.70)
-					sprintf(respuesta, "%s: eres alto", nombre);
+				strcpy(password, p);
+
+				// Consulta para verificar si el usuario existe y coincide la contraseña
+				char query[256];
+				sprintf(query, "SELECT password FROM Jugadores WHERE usuario='%s'", nombre);
+
+				err = mysql_query(conn, query);
+				if (err != 0) 
+				{
+					printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
+					sprintf(respuesta, "Error en la base de datos");
+				}
+				else 
+				{
+					res = mysql_store_result(conn);
+					row = mysql_fetch_row(res);
+					if (row == NULL) 
+					{
+						sprintf(respuesta, "El usuario no existe");
+					}
+					else 
+					{
+						if (strcmp(row[0], password) == 0) 
+						{
+							sprintf(respuesta, "Inicio de sesión correcto");
+							strcpy(usuario_logueado, nombre);
+							session_iniciada = 1;
+						}
+						else 
+						{
+							sprintf(respuesta, "Contraseña incorrecta");
+						}
+					}
+					mysql_free_result(res);	
+				}
+			}
+
+			else if (codigo ==2) //Quieren registrarse 
+			{
+				p = strtok(NULL, "/");
+				strcpy(password, p);
+
+				// Consulta para insertar el nuevo jugador
+				char query[256];
+				sprintf(query, "INSERT INTO Jugadores (usuario, password) VALUES ('%s', '%s')", nombre, password);
+
+				err = mysql_query(conn, query);
+				if (err != 0) {
+					if (mysql_errno(conn) == 1062) {  // Código de error para duplicados
+						sprintf(respuesta, "El nombre de usuario ya existe");
+					}
+					else {
+						printf("Error al insertar en la base de datos: %s\n", mysql_error(conn));
+						sprintf(respuesta, "Error al registrarse");
+					}
+				}
+				else 
+				{
+					sprintf(respuesta, "Registro exitoso");
+				}
+			}
+			
+
+			else if (codigo ==3) //quiere saber cuanto dinero tiene
+			{
+				char query[256];
+				sprintf(query, "SELECT dinero FROM Jugadores WHERE usuario='%s'", usuario_logueado);
+
+				err = mysql_query(conn, query);
+				if (err != 0)
+				{
+					printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
+					sprintf(respuesta, "Error en la base de datos");
+				}
 				else
-					sprintf(respuesta, "%s: eres bajo", nombre);
-
+				{
+					res = mysql_store_result(conn);
+					row = mysql_fetch_row(res);
+					if (row == NULL)
+					{
+						sprintf(respuesta, "El usuario no existe");
+					}
+					else
+					{
+						sprintf(respuesta, "Dinero disponible: %.2f", atof(row[0]));
+					}
+					mysql_free_result(res);
+				}
 			}
 
-			else if (codigo == 4) //decir si es palindromo
+			else if (codigo == 4) //quiere saber cuantas partidas ha ganado
 			{
-				int inicio = 0;
-				int encontrado = 0;
-				int fin = strlen(nombre) - 1;
+				char query[256];
+				sprintf(query, "SELECT victorias FROM Jugadores WHERE usuario='%s'", usuario_logueado);
 
-				while (inicio < fin)
+				err = mysql_query(conn, query);
+				if (err != 0)
 				{
-					if (nombre[inicio] != nombre[fin])
-					{ 
-						strcpy(respuesta, "NO");
-						encontrado = 1;
-					}
-					inicio++;
-					fin--;
-
+					printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
+					sprintf(respuesta, "Error en la base de datos");
 				}
-
-				if (encontrado == 0)
-					strcpy(respuesta, "SI");
+				else
+				{
+					res = mysql_store_result(conn);
+					row = mysql_fetch_row(res);
+					if (row == NULL)
+					{
+						sprintf(respuesta, "El usuario no existe");
+					}
+					else
+					{
+						sprintf(respuesta, "Partidas ganadas: %d", atoi(row[0]));
+					}
+					mysql_free_result(res);
+				}
 			}
+				
 
-			else if (codigo ==5)
+			else if (codigo ==5) //quiere saber que cartas tiene
 			{
-				for (i = 0; nombre[i] != '\0'; i++) 
+				char query[256];
+				sprintf(query, "SELECT cartas FROM Jugadores WHERE usuario='%s'", usuario_logueado);
+
+				err = mysql_query(conn, query);
+				if (err != 0)
 				{
-					//Comprobamos que los caracteres entres dentro de a-z
-					if (nombre[i] >= 'a' && nombre[i] <= 'z') {
-						respuesta[i] = nombre[i] - 32; // Restar 32 convierte una letra minúscula en mayúscula
-					}
+					printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
+					sprintf(respuesta, "Error en la base de datos");
 				}
+				else
+				{
+					res = mysql_store_result(conn);
+					row = mysql_fetch_row(res);
+					if (row == NULL)
+					{
+						sprintf(respuesta, "El usuario no existe");
+					}
+					else
+					{
+						if (row[0] == NULL || strcmp(row[0], "") == 0)
+						{
+							sprintf(respuesta, "No tienes cartas");
+						}
+						else
+						{
+							sprintf(respuesta, "Tus cartas: %s", row[0]);
+						}
+					}
+					mysql_free_result(res);
+				}
+			
 			}
 
 
@@ -146,4 +269,8 @@ int main(int argc, char *argv[])
 		// Se acabo el servicio para este cliente
 		close(sock_conn); 
 	}
+
+	mysql_close(conn);
+	return 0;
+
 }
