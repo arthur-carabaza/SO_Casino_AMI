@@ -7,14 +7,92 @@
 #include <stdio.h>
 #include <mysql/mysql.h>
 
+//Definimos estructuras i funciones para trabajar con la lista de conectados
+typedef struct {
+	chat nombre[20];
+	int socket;
+} Conectado;
+
+typedef struct {
+	Conectado conectados[100];
+	int num;
+} ListaConectados;
+
+int PonConectado(ListaConectados *lista, char nombre[20], int socket) {
+	//Añade nuevo conectado a una lista de conectados
+	//Devuelva -1 si la llista esta llena, 0 si se ha hecho correctamente
+	if (lista->num == 100)
+		return -1;
+	else {
+		strcpy(lista->conectados[lista->num].nombre, nombre);
+		lista->conectados[lista->num].socket = socket;
+		lista->num++;
+		return 0;
+
+	}
+}
+int DamePosicion(ListaConectados *lista, char nombre[20]) {
+	//Devuelve posicon en la lista o -1 si  no está en la lista de conectado
+	int i = 0;
+	int encontrado = 0;
+	while ((i < lista->num) && !encontrado)
+	{
+		if (strcmp(lista->conectados[i].nombre, nombre) == 0)
+			encontrado = 1;
+		else if (!encontrado)
+			i = i + 1;
+	}
+	if (encontrado)
+		return i;
+	else
+		return -1;
+}
+
+int EliminaConectado(ListaConectados *lista, char nombre[20]) {
+	//Retorna 0 si elimina y -1 si ese usuario no esta en la lista
+	//Primero con el algoritmo de busqueda buscamos la posicion del nombre
+	int pos = DamePosicion(lista, nombre);
+	if (pos == -1)
+		return -1;
+	else {
+		int i;
+		for (i = pos; i < lista->num - 1; i++)
+		{
+			strcpy(lista->conectados[i].nombre, lista->conectados[i + 1].nombre);
+			lista->conectados[i].socket = lista->conectados[i + 1].socket;
+		}
+		lista->num--;
+		return 0;
+	}
+}
+
+void DameConectados(ListaConectados* lista, char conectados[300]) {
+	//Escribe en la char de conectados los nombre de todos los coenctados separados por /
+	//Primero Pone el numero de conectados: 3/Pedro/Maria/Juan
+	sprintf(conectados, "%d", lista->num);
+	int i;
+	for (i = 0; i < lista->num; i++)
+		sprintf(conectados, "%s/%s", conectados, lista->conectados[i].nombre);
+
+}
+
+
 int main(int argc, char *argv[])
 {
 	int sock_conn, sock_listen, ret;
 	struct sockaddr_in serv_adr;
+
+	//Chars para trabajar con Peticion/Respuesta entre servidor y cleinte
 	char peticion[512];
 	char respuesta[512];
+
+	//Variables para comprobar que la persona tenga la session inicaida para hacer peticiones
 	int session_iniciada = 0;
 	char usuario_logueado [100];
+
+	//Lista de conectados que se inicializa con 0 conectados
+	ListaConectados miLista;
+	miLista.num = 0;
 
 	MYSQL *conn;
 	MYSQL_RES *res;
@@ -48,7 +126,7 @@ int main(int argc, char *argv[])
 	// asocia el socket a cualquiera de las IP de la m?quina. 
 	//htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	// escucharemos en el port 9050
+	// escucharemos en el port 50000
 	serv_adr.sin_port = htons(50000);
 
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
