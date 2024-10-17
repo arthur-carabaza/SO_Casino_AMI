@@ -8,6 +8,9 @@
 #include <mysql/mysql.h>
 #include <pthread.h>
 
+//Estructura necesaria para el acceso excluyente
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
 //Definimos estructuras i funciones para trabajar con la lista de conectados
 typedef struct {
 	char nombre[20];
@@ -19,6 +22,10 @@ typedef struct {
 	int num;
 } ListaConectados;
 
+//Lista de conectados que se inicializa con 0 conectados
+ListaConectados miLista;
+char conectados[300];
+
 int PonConectado(ListaConectados *lista, char nombre[20], int socket) {
 	//Añade nuevo conectado a una lista de conectados
 	//Devuelva -1 si la llista esta llena, 0 si se ha hecho correctamente
@@ -29,7 +36,6 @@ int PonConectado(ListaConectados *lista, char nombre[20], int socket) {
 		lista->conectados[lista->num].socket = socket;
 		lista->num++;
 		return 0;
-
 	}
 }
 int DamePosicion(ListaConectados *lista, char nombre[20]) {
@@ -109,17 +115,14 @@ void* AtenderClientes(void* socket) {
 		mysql_close(conn);
 		exit(1);
 	}
+
+	//Variables para comprobar que la persona tenga la session inciada para hacer peticiones
+	int session_iniciada = 0;
+	char usuario_logueado[100];
 	
-	// Entramos en un bucle para atender todas las peticiones de este cliente
-	//hasta que se desconecte
+	// Entramos en un bucle para atender todas las peticiones de este cliente hasta que se desconecte
 	while (terminar == 0) {
-		
-		//Variables para comprobar que la persona tenga la session inicaida para hacer peticiones
-		int session_iniciada = 0;
-		char usuario_logueado [100];
-		
-		
-		
+
 		ret = read(sock_conn, peticion, sizeof(peticion));
 		printf("Recibida una petición\n");
 		// Tenemos que a?adirle la marca de fin de string 
@@ -136,7 +139,7 @@ void* AtenderClientes(void* socket) {
 		char nombre[20];
 		char password[20];
 
-		if (codigo != 0)
+		if ((codigo != 0)&&(codigo !=6))
 		{
 			p = strtok(NULL, "/");
 			strcpy(nombre, p);
@@ -175,6 +178,18 @@ void* AtenderClientes(void* socket) {
 						sprintf(respuesta, "Inicio de sesión correcto");
 						strcpy(usuario_logueado, nombre);
 						session_iniciada = 1;
+
+						// Ahora añadimos al cliente a la lista de conectados
+						pthread_mutex_lock(&mutex); //No me interrumpas ahora el proceso de este thread
+						if (PonConectado(&miLista, nombre, sock_conn) == -1)
+						{
+							printf("La lista de conectados está llena\n");
+						}
+						else
+						{
+							printf("El cliente %s se ha añadido a la lista de conectados\n", nombre);
+						}
+						pthread_mutex_unlock(&mutex); //Ya puedes interrumpir el proceso de este thread
 					}
 					else
 					{
@@ -210,92 +225,108 @@ void* AtenderClientes(void* socket) {
 			}
 		}
 
-		else if (codigo == 3) //quiere saber cuanto dinero tiene
+		else if ((codigo == 3 || codigo == 4 || codigo == 5)) 
 		{
-			char query[256];
-			sprintf(query, "SELECT dinero FROM Jugadores WHERE usuario='%s'", usuario_logueado);
-
-			err = mysql_query(conn, query);
-			if (err != 0)
-			{
-				printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
-				sprintf(respuesta, "Error en la base de datos");
+			if (session_iniciada == 0) {
+				sprintf(respuesta, "Debes iniciar primero");
 			}
-			else
-			{
-				res = mysql_store_result(conn);
-				row = mysql_fetch_row(res);
-				if (row == NULL)
-				{
-					sprintf(respuesta, "El usuario no existe");
-				}
-				else
-				{
-					sprintf(respuesta, "Dinero disponible: %.2f", atof(row[0]));
-				}
-				mysql_free_result(res);
-			}
-		}
 
-		else if (codigo == 4) //quiere saber cuantas partidas ha ganado
-		{
-			char query[256];
-			sprintf(query, "SELECT victorias FROM Jugadores WHERE usuario='%s'", usuario_logueado);
+			else {
+				if (codigo == 3) {
+					char query[256];
+					sprintf(query, "SELECT dinero FROM Jugadores WHERE usuario='%s'", usuario_logueado);
 
-			err = mysql_query(conn, query);
-			if (err != 0)
-			{
-				printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
-				sprintf(respuesta, "Error en la base de datos");
-			}
-			else
-			{
-				res = mysql_store_result(conn);
-				row = mysql_fetch_row(res);
-				if (row == NULL)
-				{
-					sprintf(respuesta, "El usuario no existe");
-				}
-				else
-				{
-					sprintf(respuesta, "Partidas ganadas: %d", atoi(row[0]));
-				}
-				mysql_free_result(res);
-			}
-		}
-
-		else if (codigo == 5) //quiere saber que cartas tiene
-		{
-			char query[256];
-			sprintf(query, "SELECT cartas FROM Jugadores WHERE usuario='%s'", usuario_logueado);
-
-			err = mysql_query(conn, query);
-			if (err != 0)
-			{
-				printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
-				sprintf(respuesta, "Error en la base de datos");
-			}
-			else
-			{
-				res = mysql_store_result(conn);
-				row = mysql_fetch_row(res);
-				if (row == NULL)
-				{
-					sprintf(respuesta, "El usuario no existe");
-				}
-				else
-				{
-					if (row[0] == NULL || strcmp(row[0], "") == 0)
+					err = mysql_query(conn, query);
+					if (err != 0)
 					{
-						sprintf(respuesta, "No tienes cartas");
+						printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
+						sprintf(respuesta, "Error en la base de datos");
 					}
 					else
 					{
-						sprintf(respuesta, "Tus cartas: %s", row[0]);
+						res = mysql_store_result(conn);
+						row = mysql_fetch_row(res);
+						if (row == NULL)
+						{
+							sprintf(respuesta, "El usuario no existe");
+						}
+						else
+						{
+							sprintf(respuesta, "Dinero disponible: %.2f", atof(row[0]));
+						}
+						mysql_free_result(res);
 					}
 				}
-				mysql_free_result(res);
+
+				else if (codigo == 4) {
+					char query[256];
+					sprintf(query, "SELECT victorias FROM Jugadores WHERE usuario='%s'", usuario_logueado);
+
+					err = mysql_query(conn, query);
+					if (err != 0)
+					{
+						printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
+						sprintf(respuesta, "Error en la base de datos");
+					}
+					else
+					{
+						res = mysql_store_result(conn);
+						row = mysql_fetch_row(res);
+						if (row == NULL)
+						{
+							sprintf(respuesta, "El usuario no existe");
+						}
+						else
+						{
+							sprintf(respuesta, "Partidas ganadas: %d", atoi(row[0]));
+						}
+						mysql_free_result(res);
+					}
+				}
+
+				else if (codigo == 5) {
+					char query[256];
+					sprintf(query, "SELECT cartas FROM Jugadores WHERE usuario='%s'", usuario_logueado);
+
+					err = mysql_query(conn, query);
+					if (err != 0)
+					{
+						printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
+						sprintf(respuesta, "Error en la base de datos");
+					}
+					else
+					{
+						res = mysql_store_result(conn);
+						row = mysql_fetch_row(res);
+						if (row == NULL)
+						{
+							sprintf(respuesta, "El usuario no existe");
+						}
+						else
+						{
+							if (row[0] == NULL || strcmp(row[0], "") == 0)
+							{
+								sprintf(respuesta, "No tienes cartas");
+							}
+							else
+							{
+								sprintf(respuesta, "Tus cartas: %s", row[0]);
+							}
+						}
+						mysql_free_result(res);
+					}
+				}
 			}
+		}
+
+		else if (codigo == 6) {
+			//Quiere ver la lista de conectados 
+			pthread_mutex_lock(&mutex); //No interrumpir al thread mientras lee 
+			// Llamamos la función para llenar el string conectados
+			DameConectados(&miLista, conectados);  
+			pthread_mutex_unlock(&mutex); //Ya puedes interrumpir al thread 
+			// Después ponemos ese string en la respuesta
+			sprintf(respuesta, "%s", conectados);   
 		}
 
 		if (codigo != 0)
@@ -305,6 +336,22 @@ void* AtenderClientes(void* socket) {
 			write(sock_conn, respuesta, strlen(respuesta));
 		}
 	}
+
+	if (session_iniciada)
+	{
+		pthread_mutex_lock(&mutex); //No interrumpir el thread 
+		// Elimina el cliente de la lista de conectados
+		if (EliminaConectado(&miLista, usuario_logueado) == -1)
+		{
+			printf("No se encontró al cliente %s en la lista de conectados\n", usuario_logueado);
+		}
+		else
+		{
+			printf("El cliente %s ha sido eliminado de la lista de conectados\n", usuario_logueado);
+		}
+		pthread_mutex_unlock(&mutex); //Ya puedes interrumpir el thread
+	}
+
 	// Se acabo el servicio para este cliente
 	mysql_close(conn);
 	close(sock_conn);
@@ -312,12 +359,9 @@ void* AtenderClientes(void* socket) {
 	
 int main(int argc, char *argv[])
 {
+	
 	int sock_conn, sock_listen, ret;
 	struct sockaddr_in serv_adr;
-
-	//Lista de conectados que se inicializa con 0 conectados
-	ListaConectados miLista;
-	miLista.num = 0;
 
 	// INICIALITZACIONS
 	// Obrim el socket
@@ -339,6 +383,7 @@ int main(int argc, char *argv[])
 	if (listen(sock_listen, 4) < 0)
 		printf("Error en el Listen");
 
+	miLista.num = 0;
 	int i=0;
 	int sockets[100];
 	pthread_t thread;

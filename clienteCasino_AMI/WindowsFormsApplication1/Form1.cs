@@ -56,8 +56,10 @@ namespace WindowsFormsApplication1
             
                 if (Dinero.Checked)
                 {
-                        //Quiere saber cuanto dinero tiene
-                        string mensaje = "3/" + nombre.Text;
+                    //Quiere saber cuanto dinero tiene
+                    string mensaje = "3/" + nombre.Text;
+                    try
+                    {
                         // Enviamos al servidor el nombre tecleado
                         byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                         server.Send(msg);
@@ -65,9 +67,14 @@ namespace WindowsFormsApplication1
                         //Recibimos la respuesta del servidor
                         byte[] msg2 = new byte[80];
                         server.Receive(msg2);
+
                         mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
                         MessageBox.Show(mensaje);
-
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error al realizar la peticion, asegurese de estar conectado");
+                    }
                 }
                 else if (Victorias.Checked)
                 {
@@ -121,11 +128,11 @@ namespace WindowsFormsApplication1
             // Enviamos al servidor el nombre tecleado y la contraseña
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
             server.Send(msg);
-
             //Recibimos la respuesta del servidor
             byte[] msg2 = new byte[80];
             server.Receive(msg2);
             mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
+            this.BackColor = Color.LightGreen;
             MessageBox.Show(mensaje);
 
 
@@ -149,6 +156,18 @@ namespace WindowsFormsApplication1
 
         private void button1_Click(object sender, EventArgs e)
         {
+            //Quiere ver la lista de conectados
+            string mensaje = "6/";
+            // Enviamos al servidor el nombre tecleado
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+
+            //Recibimos la respuesta del servidor
+            byte[] msg2 = new byte[80];
+            server.Receive(msg2);
+            mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
+            MessageBox.Show(mensaje);
+
 
         }
     }

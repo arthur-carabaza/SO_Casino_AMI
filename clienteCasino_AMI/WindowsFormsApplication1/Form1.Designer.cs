@@ -34,6 +34,7 @@ namespace WindowsFormsApplication1
             this.nombre = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.listaconectados = new System.Windows.Forms.Button();
             this.registrarse = new System.Windows.Forms.Button();
             this.login = new System.Windows.Forms.Button();
             this.Cartas = new System.Windows.Forms.RadioButton();
@@ -43,7 +44,6 @@ namespace WindowsFormsApplication1
             this.Dinero = new System.Windows.Forms.RadioButton();
             this.conectar = new System.Windows.Forms.Button();
             this.desconectar = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -80,7 +80,7 @@ namespace WindowsFormsApplication1
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.groupBox1.Controls.Add(this.button1);
+            this.groupBox1.Controls.Add(this.listaconectados);
             this.groupBox1.Controls.Add(this.registrarse);
             this.groupBox1.Controls.Add(this.login);
             this.groupBox1.Controls.Add(this.Cartas);
@@ -99,6 +99,16 @@ namespace WindowsFormsApplication1
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Peticion";
+            // 
+            // listaconectados
+            // 
+            this.listaconectados.Location = new System.Drawing.Point(7, 311);
+            this.listaconectados.Name = "listaconectados";
+            this.listaconectados.Size = new System.Drawing.Size(147, 28);
+            this.listaconectados.TabIndex = 9;
+            this.listaconectados.Text = "Usuarios Conectados";
+            this.listaconectados.UseVisualStyleBackColor = true;
+            this.listaconectados.Click += new System.EventHandler(this.button1_Click);
             // 
             // registrarse
             // 
@@ -199,16 +209,6 @@ namespace WindowsFormsApplication1
             this.desconectar.UseVisualStyleBackColor = true;
             this.desconectar.Click += new System.EventHandler(this.desconectar_Click);
             // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(7, 311);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(147, 28);
-            this.button1.TabIndex = 9;
-            this.button1.Text = "Usuarios Conectados";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -242,7 +242,7 @@ namespace WindowsFormsApplication1
         private System.Windows.Forms.RadioButton Cartas;
         private System.Windows.Forms.Button registrarse;
         private System.Windows.Forms.Button login;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button listaconectados;
     }
 }
 
