@@ -15,15 +15,29 @@ namespace WindowsFormsApplication1
         public partial class Form1 : Form
         {
             Socket server;
+            bool conectado = false;
             public Form1()
             {
                 InitializeComponent();
+                
             }
 
             private void Form1_Load(object sender, EventArgs e)
             {
+                // Establecer los colores iniciales de los botones
+                conectar.BackColor = Color.Red; // Color rojo para el botón conectar
+                conectar.ForeColor = Color.White;
 
-           
+                desconectar.BackColor = Color.Black; // Color negro para el botón desconectar
+                desconectar.ForeColor = Color.White;
+                this.Paint += new PaintEventHandler(Form1_Paint);
+            }
+
+            private void Form1_Paint(object senser, PaintEventArgs e)
+            {
+                Graphics g = e.Graphics;
+                Brush brush = conectado ? Brushes.Green : Brushes.Red; // Verde si está conectado, rojo si no
+                g.FillEllipse(brush, new Rectangle(20,20,20,20)); // Dibujar el círculo en la esquina superior izquierda
             }
 
             private void conectar_Click(object sender, EventArgs e)
@@ -31,7 +45,7 @@ namespace WindowsFormsApplication1
                 //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
                 //al que deseamos conectarnos
                 IPAddress direc = IPAddress.Parse("192.168.56.101");
-                IPEndPoint ipep = new IPEndPoint(direc, 50000);
+                IPEndPoint ipep = new IPEndPoint(direc, 50001);
 
 
                 //Creamos el socket 
@@ -39,7 +53,11 @@ namespace WindowsFormsApplication1
                 try
                 {
                     server.Connect(ipep);//Intentamos conectar el socket
-                    this.BackColor = Color.Green;
+
+                    conectado = true;
+                    this.Invalidate(new Rectangle(20,20,20,20)); //Redibujamos el forms para actiualizar el circulo 
+                    this.Update();
+
                     MessageBox.Show("Conectado");
                 }
 
@@ -90,7 +108,6 @@ namespace WindowsFormsApplication1
                     mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
                     MessageBox.Show(mensaje);
                 }
-
                 else
                 {
                     //Quiere saber que cartas tengo
@@ -106,7 +123,6 @@ namespace WindowsFormsApplication1
                     MessageBox.Show(mensaje);
                 }
             }
-
             private void desconectar_Click(object sender, EventArgs e)
             {
                 //Mensaje de desconexion
@@ -114,9 +130,12 @@ namespace WindowsFormsApplication1
 
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
-            
+
                 //Nos deconectamos
-                this.BackColor = Color.Gray;
+                conectado = false;
+                this.Invalidate(new Rectangle(20,20,40,40)); //Redibujar el formulario para actualizar el circulo
+                this.Update();
+
                 server.Shutdown(SocketShutdown.Both);
                 server.Close();
             }
@@ -132,12 +151,9 @@ namespace WindowsFormsApplication1
             byte[] msg2 = new byte[80];
             server.Receive(msg2);
             mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-            this.BackColor = Color.LightGreen;
             MessageBox.Show(mensaje);
-
-
+            label3.Text = nombre.Text;
         }
-
         private void registrarse_Click(object sender, EventArgs e)
         {
             //Quiere registrarse
@@ -151,9 +167,7 @@ namespace WindowsFormsApplication1
             server.Receive(msg2);
             mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
             MessageBox.Show(mensaje);
-
         }
-
         private void button1_Click(object sender, EventArgs e)
         {
             //Quiere ver la lista de conectados
@@ -167,11 +181,11 @@ namespace WindowsFormsApplication1
             server.Receive(msg2);
             mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
             MessageBox.Show(mensaje);
-
-
+        }
+        private void label4_Click(object sender, EventArgs e)
+        {
         }
     }
-     
 }
 
 namespace WindowsFormsApplication1
