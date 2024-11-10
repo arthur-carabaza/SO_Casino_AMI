@@ -145,3 +145,13 @@ C:\Users\Usuari\Documentos\Uni\Q7\SO\SO_Casino_AMI\clienteCasino_AMI\WindowsForm
 C:\Users\Usuari\Documentos\Uni\Q7\SO\SO_Casino_AMI\clienteCasino_AMI\WindowsFormsApplication1\obj\Debug\clienteForm.csproj.CoreCompileInputs.cache
 C:\Users\Usuari\Documentos\Uni\Q7\SO\SO_Casino_AMI\clienteCasino_AMI\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.exe
 C:\Users\Usuari\Documentos\Uni\Q7\SO\SO_Casino_AMI\clienteCasino_AMI\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.pdb
+C:\Users\incre\Desktop\clienteCasino_AMI\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.exe.config
+C:\Users\incre\Desktop\clienteCasino_AMI\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.exe
+C:\Users\incre\Desktop\clienteCasino_AMI\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.pdb
+C:\Users\incre\Desktop\clienteCasino_AMI\WindowsFormsApplication1\obj\Debug\clienteForm.csproj.AssemblyReference.cache
+C:\Users\incre\Desktop\clienteCasino_AMI\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Form1.resources
+C:\Users\incre\Desktop\clienteCasino_AMI\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Properties.Resources.resources
+C:\Users\incre\Desktop\clienteCasino_AMI\WindowsFormsApplication1\obj\Debug\clienteForm.csproj.GenerateResource.cache
+C:\Users\incre\Desktop\clienteCasino_AMI\WindowsFormsApplication1\obj\Debug\clienteForm.csproj.CoreCompileInputs.cache
+C:\Users\incre\Desktop\clienteCasino_AMI\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.exe
+C:\Users\incre\Desktop\clienteCasino_AMI\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.pdb
