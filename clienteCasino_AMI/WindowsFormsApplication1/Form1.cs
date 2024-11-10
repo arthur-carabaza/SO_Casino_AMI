@@ -74,7 +74,10 @@ namespace WindowsFormsApplication1
                             MessageBox.Show(mensaje);
                             break;
                         case 6:
-                            LbLcon.Text = trozos[1];
+                            string aux="";
+                            for(int i = 2; i < trozos.Length; i++)
+                                aux = aux + trozos[i] + "\n";
+                            LbLcon.Text = aux;
                             break;
 
 

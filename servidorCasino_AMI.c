@@ -328,8 +328,8 @@ void* AtenderClientes(void* socket) {
 			// Enviamos la respuesta
 			write(sock_conn, respuesta, strlen(respuesta));
 		}
-		if ((codigo==1)||(codigo == 2)||(codigo==3)){
-							pthread_mutex_lock(&mutex);
+		if ((codigo==0)||(codigo==1)||(codigo == 2)||(codigo==3)){
+				pthread_mutex_lock(&mutex);
 				contador =contador+1;
 				pthread_mutex_unlock(&mutex);
 				//notificar todos los clientes
@@ -338,7 +338,7 @@ void* AtenderClientes(void* socket) {
 				sprintf(notificacion, "6/%s", conectados);
 				int j;
 				for(j=0;j<i;j++)
-					write(sock_conn,notificacion,strlen(notificacion));
+					write(sockets[j],notificacion,strlen(notificacion));
 
 			}
 	}
