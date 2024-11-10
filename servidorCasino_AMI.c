@@ -25,6 +25,9 @@ typedef struct {
 //Lista de conectados que se inicializa con 0 conectados
 ListaConectados miLista;
 char conectados[300];
+int contador;
+int i=0;
+int sockets[100];
 
 int PonConectado(ListaConectados *lista, char nombre[20], int socket) {
 	//Añade nuevo conectado a una lista de conectados
@@ -161,7 +164,7 @@ void* AtenderClientes(void* socket) {
 			if (err != 0)
 			{
 				printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
-				sprintf(respuesta, "Error en la base de datos");
+				sprintf(respuesta, "1/Error en la base de datos");
 			}
 			else
 			{
@@ -169,13 +172,13 @@ void* AtenderClientes(void* socket) {
 				row = mysql_fetch_row(res);
 				if (row == NULL)
 				{
-					sprintf(respuesta, "El usuario no existe");
+					sprintf(respuesta, "1/El usuario no existe");
 				}
 				else
 				{
 					if (strcmp(row[0], password) == 0)
 					{
-						sprintf(respuesta, "Inicio de sesión correcto");
+						sprintf(respuesta, "1/Inicio de sesión correcto");
 						strcpy(usuario_logueado, nombre);
 						session_iniciada = 1;
 
@@ -193,7 +196,7 @@ void* AtenderClientes(void* socket) {
 					}
 					else
 					{
-						sprintf(respuesta, "Contraseña incorrecta");
+						sprintf(respuesta, "1/Contraseña incorrecta");
 					}
 				}
 				mysql_free_result(res);
@@ -212,11 +215,11 @@ void* AtenderClientes(void* socket) {
 			err = mysql_query(conn, query);
 			if (err != 0) {
 				if (mysql_errno(conn) == 1062) {  // Código de error para duplicados
-					sprintf(respuesta, "El nombre de usuario ya existe");
+					sprintf(respuesta, "2/El nombre de usuario ya existe");
 				}
 				else {
 					printf("Error al insertar en la base de datos: %s\n", mysql_error(conn));
-					sprintf(respuesta, "Error al registrarse");
+					sprintf(respuesta, "2/Error al registrarse");
 				}
 			}
 			else
@@ -240,7 +243,7 @@ void* AtenderClientes(void* socket) {
 					if (err != 0)
 					{
 						printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
-						sprintf(respuesta, "Error en la base de datos");
+						sprintf(respuesta, "3/Error en la base de datos");
 					}
 					else
 					{
@@ -248,11 +251,11 @@ void* AtenderClientes(void* socket) {
 						row = mysql_fetch_row(res);
 						if (row == NULL)
 						{
-							sprintf(respuesta, "El usuario no existe");
+							sprintf(respuesta, "3/El usuario no existe");
 						}
 						else
 						{
-							sprintf(respuesta, "Dinero disponible: %.2f", atof(row[0]));
+							sprintf(respuesta, "3/Dinero disponible: %.2f", atof(row[0]));
 						}
 						mysql_free_result(res);
 					}
@@ -266,7 +269,7 @@ void* AtenderClientes(void* socket) {
 					if (err != 0)
 					{
 						printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
-						sprintf(respuesta, "Error en la base de datos");
+						sprintf(respuesta, "4/Error en la base de datos");
 					}
 					else
 					{
@@ -274,11 +277,11 @@ void* AtenderClientes(void* socket) {
 						row = mysql_fetch_row(res);
 						if (row == NULL)
 						{
-							sprintf(respuesta, "El usuario no existe");
+							sprintf(respuesta, "4/El usuario no existe");
 						}
 						else
 						{
-							sprintf(respuesta, "Partidas ganadas: %d", atoi(row[0]));
+							sprintf(respuesta, "4/Partidas ganadas: %d", atoi(row[0]));
 						}
 						mysql_free_result(res);
 					}
@@ -300,17 +303,17 @@ void* AtenderClientes(void* socket) {
 						row = mysql_fetch_row(res);
 						if (row == NULL)
 						{
-							sprintf(respuesta, "El usuario no existe");
+							sprintf(respuesta, "5/El usuario no existe");
 						}
 						else
 						{
 							if (row[0] == NULL || strcmp(row[0], "") == 0)
 							{
-								sprintf(respuesta, "No tienes cartas");
+								sprintf(respuesta, "5/No tienes cartas");
 							}
 							else
 							{
-								sprintf(respuesta, "Tus cartas: %s", row[0]);
+								sprintf(respuesta, "5/Tus cartas: %s", row[0]);
 							}
 						}
 						mysql_free_result(res);
@@ -319,22 +322,25 @@ void* AtenderClientes(void* socket) {
 			}
 		}
 
-		else if (codigo == 6) {
-			//Quiere ver la lista de conectados 
-			pthread_mutex_lock(&mutex); //No interrumpir al thread mientras lee 
-			// Llamamos la función para llenar el string conectados
-			DameConectados(&miLista, conectados);  
-			pthread_mutex_unlock(&mutex); //Ya puedes interrumpir al thread 
-			// Después ponemos ese string en la respuesta
-			sprintf(respuesta, "%s", conectados);   
-		}
-
 		if (codigo != 0)
 		{
 			printf("Respuesta: %s\n", respuesta);
 			// Enviamos la respuesta
 			write(sock_conn, respuesta, strlen(respuesta));
 		}
+		if ((codigo==1)||(codigo == 2)||(codigo==3)){
+							pthread_mutex_lock(&mutex);
+				contador =contador+1;
+				pthread_mutex_unlock(&mutex);
+				//notificar todos los clientes
+				char notificacion[20];
+				DameConectados(&miLista, conectados);
+				sprintf(notificacion, "6/%s", conectados);
+				int j;
+				for(j=0;j<i;j++)
+					write(sock_conn,notificacion,strlen(notificacion));
+
+			}
 	}
 
 	if (session_iniciada)
@@ -375,7 +381,7 @@ int main(int argc, char *argv[])
 	//htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	// escucharemos en el port 50000
-	serv_adr.sin_port = htons(50001);
+	serv_adr.sin_port = htons(50003);
 
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
@@ -384,8 +390,7 @@ int main(int argc, char *argv[])
 		printf("Error en el Listen");
 
 	miLista.num = 0;
-	int i=0;
-	int sockets[100];
+
 	pthread_t thread;
 
 	//bucle infinito
