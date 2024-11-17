@@ -238,7 +238,7 @@ void* AtenderClientes(void* socket) {
 			}
 		}
 
-		else if ((codigo == 3 || codigo == 4 || codigo == 5|| codigo==7)) 
+		else if ((codigo == 3 || codigo == 4 || codigo == 5|| codigo==7 || codigo == 8))
 		{
 			if (session_iniciada == 0) {
 				sprintf(respuesta, "Debes iniciar primero");
@@ -338,7 +338,7 @@ void* AtenderClientes(void* socket) {
 					send(socketInvitado,Invitacion,strlen(Invitacion),0);
 					
 				}
-				else if (codigo == 8) //Quieren registrarse 
+				else if (codigo == 8) //Respuesta de la invitacion 
 				{
 					p = strtok(NULL, "/");
 					char aux;
