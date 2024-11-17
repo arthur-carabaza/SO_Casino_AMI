@@ -81,6 +81,45 @@ namespace WindowsFormsApplication1
                         
                         ListaConectados.Text = mensaje; 
                         break;
+
+                    case 7: //Notificacion de invitacion
+
+                        DialogResult RespuestaInv = MessageBox.Show(mensaje + "le han invitado a una partida.\n Quiere unirse?", "Respuesta invitacion", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        if (RespuestaInv == DialogResult.Yes)
+                        {
+                            string mensg = "8/SI/"+mensaje;
+                            // Enviamos al servidor la respuesta de la invitacion
+                            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensg);
+                            server.Send(msg);
+                        }
+                        else
+                        {
+                            string mensg = "8/NO/" + mensaje;
+                            // Enviamos al servidor la respuesta de la invitacion
+                            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensg);
+                            server.Send(msg);
+                        }
+                        break;
+
+                    case 8:
+                        if(mensaje == "SI")
+                        {
+                            MessageBox.Show("Su invitación ha sido aceptada");
+                        }
+                        else
+                        {
+                            DialogResult result = MessageBox.Show("Su invitación ha sido rechazada, quiere iniciar igualmente la partida?","invitacion",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
+                            if (result == DialogResult.Yes)
+                            {
+                                MessageBox.Show("La partida se iniciará");
+                            }
+                            else
+                            {
+                                MessageBox.Show("La partida se ha cancelado");
+                            }
+
+                        }
+                        break;
                 }
             }
         }
@@ -90,7 +129,7 @@ namespace WindowsFormsApplication1
             //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
             //al que deseamos conectarnos
             IPAddress direc = IPAddress.Parse("10.4.119.5");
-            IPEndPoint ipep = new IPEndPoint(direc, 50000);
+            IPEndPoint ipep = new IPEndPoint(direc, 50001);
 
 
             //Creamos el socket 
@@ -192,6 +231,21 @@ namespace WindowsFormsApplication1
         }
         private void label4_Click(object sender, EventArgs e)
         {
+        }
+
+        private void InvitarButton_Click(object sender, EventArgs e)
+        {
+            if (InvitarBox.Text == null)
+            {
+                MessageBox.Show("Escriba un nombre de usuario que quiera invitar");
+            }
+            else
+            {
+                string NombreInvitado = InvitarBox.Text;
+                string mensaje = "7/" + NombreInvitado+"/";
+                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
+            }
         }
     }
 }

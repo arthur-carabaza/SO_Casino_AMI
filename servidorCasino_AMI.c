@@ -76,7 +76,15 @@ int EliminaConectado(ListaConectados *lista, char nombre[20]) {
 		return 0;
 	}
 }
-
+int BuscaSocketPorNombre(char nombre) {
+	// Con esta funcion entregamos el nombre de un usuario y nos devuelve su socket directamente por como esta definida el objeto de conectados
+    for (int i = 0; i < miLista.num; i++) {
+        if (strcmp(miLista.conectados[i].nombre, nombre) == 0) {
+            return miLista.conectados[i].socket;
+        }
+    }
+    return -1; // No encontrado
+}
 void DameConectados(ListaConectados* lista, char conectados[300]) {
 	//Escribe en la char de conectados los nombre de todos los coenctados separados por /
 	//Primero Pone el numero de conectados: 3/Pedro/Maria/Juan
@@ -230,7 +238,7 @@ void* AtenderClientes(void* socket) {
 			}
 		}
 
-		else if ((codigo == 3 || codigo == 4 || codigo == 5)) 
+		else if ((codigo == 3 || codigo == 4 || codigo == 5|| codigo==7)) 
 		{
 			if (session_iniciada == 0) {
 				sprintf(respuesta, "Debes iniciar primero");
@@ -321,6 +329,29 @@ void* AtenderClientes(void* socket) {
 						mysql_free_result(res);
 					}
 				}
+				else if(codigo == 7){ // Peticion de invitacion
+					char inv = strtok(NULL, "/");
+					pthread_mutex_lock(&mutex);
+					int socketInvitado = BuscaSocketPorNombre(inv); // Buscar socket del cliente
+					pthread_mutex_unlock(&mutex);
+					sprintf(Invitacion,"7/%s",nombre);
+					send(socketInvitado,Invitacion,strlen(Invitacion),0);
+					
+				}
+				else if (codigo == 8) //Quieren registrarse 
+				{
+					p = strtok(NULL, "/");
+					char aux;
+					strcpy(aux,p);
+					p = strtok(NULL, "/");
+					pthread_mutex_lock(&mutex);
+					int socketInvitador = BuscaSocketPorNombre(p); // Buscar socket del cliente
+					pthread_mutex_unlock(&mutex);
+					sprintf(RespuestaInv, "8/%s", aux);
+					send(socketInvitador,RespuestaInv,strlen(RespuestaInv),0);
+
+				}
+					
 			}
 		}
 		if (codigo != 0)
@@ -349,10 +380,7 @@ void* AtenderClientes(void* socket) {
 		if (EliminaConectado(&miLista, usuario_logueado) == -1)
 		{
 			printf("No se encontró al cliente %s en la lista de conectados\n", usuario_logueado);
-		}
-		else
-		{
-			printf("El cliente %s ha sido eliminado de la lista de conectados\n", usuario_logueado);
+			
 			//Notificamos a los clientes
 			char notificacion[20];
 			DameConectados(&miLista, conectados);
@@ -360,6 +388,10 @@ void* AtenderClientes(void* socket) {
 			int j;
 			for (j = 0; j < i; j++)
 				write(sockets[j], notificacion, strlen(notificacion));
+		}
+		else
+		{
+			printf("El cliente %s ha sido eliminado de la lista de conectados\n", usuario_logueado);
 
 		}
 		pthread_mutex_unlock(&mutex); //Ya puedes interrumpir el thread
@@ -388,7 +420,7 @@ int main(int argc, char *argv[])
 	//htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	// escucharemos en el port 50000
-	serv_adr.sin_port = htons(50000);
+	serv_adr.sin_port = htons(50001);
 
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
