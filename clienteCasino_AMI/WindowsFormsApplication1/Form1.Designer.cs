@@ -23,7 +23,6 @@ namespace WindowsFormsApplication1
             this.nombre = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.listaconectados = new System.Windows.Forms.Button();
             this.registrarse = new System.Windows.Forms.Button();
             this.login = new System.Windows.Forms.Button();
             this.Cartas = new System.Windows.Forms.RadioButton();
@@ -35,6 +34,7 @@ namespace WindowsFormsApplication1
             this.desconectar = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.ListaConectados = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -76,7 +76,6 @@ namespace WindowsFormsApplication1
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.Color.LightSlateGray;
-            this.groupBox1.Controls.Add(this.listaconectados);
             this.groupBox1.Controls.Add(this.registrarse);
             this.groupBox1.Controls.Add(this.login);
             this.groupBox1.Controls.Add(this.Cartas);
@@ -96,19 +95,6 @@ namespace WindowsFormsApplication1
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Petición";
-            // 
-            // listaconectados
-            // 
-            this.listaconectados.BackColor = System.Drawing.Color.Firebrick;
-            this.listaconectados.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.listaconectados.ForeColor = System.Drawing.Color.White;
-            this.listaconectados.Location = new System.Drawing.Point(23, 311);
-            this.listaconectados.Name = "listaconectados";
-            this.listaconectados.Size = new System.Drawing.Size(147, 28);
-            this.listaconectados.TabIndex = 9;
-            this.listaconectados.Text = "Usuarios Conectados";
-            this.listaconectados.UseVisualStyleBackColor = false;
-            this.listaconectados.Click += new System.EventHandler(this.button1_Click);
             // 
             // registrarse
             // 
@@ -252,12 +238,25 @@ namespace WindowsFormsApplication1
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.label4.Click += new System.EventHandler(this.label4_Click);
             // 
+            // ListaConectados
+            // 
+            this.ListaConectados.BackColor = System.Drawing.Color.White;
+            this.ListaConectados.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ListaConectados.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ListaConectados.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.ListaConectados.Location = new System.Drawing.Point(16, 545);
+            this.ListaConectados.Name = "ListaConectados";
+            this.ListaConectados.Size = new System.Drawing.Size(360, 49);
+            this.ListaConectados.TabIndex = 11;
+            this.ListaConectados.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
             this.ClientSize = new System.Drawing.Size(1581, 774);
+            this.Controls.Add(this.ListaConectados);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.groupBox1);
@@ -285,10 +284,10 @@ namespace WindowsFormsApplication1
         private System.Windows.Forms.RadioButton Dinero;
         private System.Windows.Forms.Button conectar;
         private System.Windows.Forms.Button desconectar;
-        private System.Windows.Forms.Button listaconectados;
         private System.Windows.Forms.Button registrarse;
         private System.Windows.Forms.Button login;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label ListaConectados;
     }
 }
