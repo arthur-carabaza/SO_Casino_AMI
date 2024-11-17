@@ -87,14 +87,14 @@ namespace WindowsFormsApplication1
                         DialogResult RespuestaInv = MessageBox.Show(mensaje + "le han invitado a una partida.\n Quiere unirse?", "Respuesta invitacion", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (RespuestaInv == DialogResult.Yes)
                         {
-                            string mensg = "8/SI/"+mensaje;
+                            string mensg = "8/"+mensaje+"/SI";
                             // Enviamos al servidor la respuesta de la invitacion
                             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensg);
                             server.Send(msg);
                         }
                         else
                         {
-                            string mensg = "8/NO/" + mensaje;
+                            string mensg = "8/" + mensaje + "/NO";
                             // Enviamos al servidor la respuesta de la invitacion
                             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensg);
                             server.Send(msg);
@@ -115,10 +115,14 @@ namespace WindowsFormsApplication1
                             }
                             else
                             {
-                                MessageBox.Show("La partida se ha cancelado");
+                                MessageBox.Show("La partida de cancela");
                             }
 
                         }
+                        break;
+
+                    case 9:  //Apartado para la respuesta del invitador y error en caso de que el invitador de desconecte(raro)
+                        MessageBox.Show(mensaje);
                         break;
                 }
             }
@@ -128,8 +132,8 @@ namespace WindowsFormsApplication1
         {
             //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
             //al que deseamos conectarnos
-            IPAddress direc = IPAddress.Parse("10.4.119.5");
-            IPEndPoint ipep = new IPEndPoint(direc, 50001);
+            IPAddress direc = IPAddress.Parse("192.168.56.101");
+            IPEndPoint ipep = new IPEndPoint(direc, 50000);
 
 
             //Creamos el socket 
@@ -242,7 +246,7 @@ namespace WindowsFormsApplication1
             else
             {
                 string NombreInvitado = InvitarBox.Text;
-                string mensaje = "7/" + NombreInvitado+"/";
+                string mensaje = "7/" + NombreInvitado;
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
             }

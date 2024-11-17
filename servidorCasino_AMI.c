@@ -78,8 +78,11 @@ int EliminaConectado(ListaConectados *lista, char nombre[20]) {
 }
 int BuscaSocketPorNombre(ListaConectados *miLista,char *nombre) {
 	// Con esta funcion entregamos el nombre de un usuario y nos devuelve su socket directamente por como esta definida el objeto de conectados
-    for (int i = 0; i < miLista->num; i++) {
-        if (strcmp(miLista->conectados[i].nombre, nombre) == 0) {
+    for (int i = 0; i < miLista->num; i++) 
+	{
+		//Comparamos el nombre dado con la lista de cada nombre
+        if (strcmp(miLista->conectados[i].nombre, nombre) == 0) 
+		{
             return miLista->conectados[i].socket;
         }
     }
@@ -122,7 +125,7 @@ void* AtenderClientes(void* socket) {
 		exit(1);
 	}
 	
-	if (mysql_real_connect(conn, "shiva2.upc.es", "root", "mysql", "M1_JuegoPoker", 0, NULL, 0) == NULL) 
+	if (mysql_real_connect(conn, "localhost", "root", "mysql", "JuegoPoker", 0, NULL, 0) == NULL) 
 	{
 		printf("Error al inicializar la conexión con la base de datos: %u %s\n", mysql_errno(conn), mysql_error(conn));
 		mysql_close(conn);
@@ -135,6 +138,8 @@ void* AtenderClientes(void* socket) {
 	
 	// Entramos en un bucle para atender todas las peticiones de este cliente hasta que se desconecte
 	while (terminar == 0) {
+		
+		strcpy(respuesta,"");
 
 		ret = read(sock_conn, peticion, sizeof(peticion));
 		printf("Recibida una petición\n");
@@ -240,7 +245,7 @@ void* AtenderClientes(void* socket) {
 			}
 		}
 
-		else if ((codigo == 3 || codigo == 4 || codigo == 5|| codigo==7 || codigo == 8))
+		else if ((codigo == 3 || codigo == 4 || codigo == 5))
 		{
 			if (session_iniciada == 0) {
 				sprintf(respuesta, "Debes iniciar primero");
@@ -267,7 +272,7 @@ void* AtenderClientes(void* socket) {
 						}
 						else
 						{
-							sprintf(respuesta, "3/Dinero disponible: %.2f", atof(row[0]));
+							sprintf(respuesta, "3/Dinero disponible: %.2f/%s", atof(row[0]),usuario_logueado);
 						}
 						mysql_free_result(res);
 					}
@@ -333,40 +338,50 @@ void* AtenderClientes(void* socket) {
 				}
 			}
 		}
-		else if(codigo ==7) { //peticion de invitacion
-			char *p = strtok(NULL, "/");
-			strcpy(nombreInvitado,p);
+		else if (codigo == 7) { // Peticion de invitacion
 			pthread_mutex_lock(&mutex);
-			int socketInvitado = BuscaSocketPorNombre(&miLista,nombreInvitado); // Buscar socket del cliente al que queremos enviar la invitacion 
+			int socketInvitado = BuscaSocketPorNombre(&miLista, nombre); // Buscar socket del cliente al que queremos enviar la invitaciÃ³n 
 			pthread_mutex_unlock(&mutex);
 			
-			if(socketInvitado !=-1) {
-				sprintf(respuesta,"7/%s",nombre);
-				write(socketInvitado,respuesta,strlen(respuesta));
+			if (socketInvitado != -1) {
+				sprintf(respuesta, "9/Invitacion enviada");
+				
+				sprintf(respuestaINV, "7/%s",usuario_logueado);
+				write(socketInvitado,respuestaINV,strlen(respuestaINV));
+			} 
+			
+			else {
+				sprintf(respuesta, "9/No se encontro el usuario");
 			}
-			else
-			   printf(respuesta,"7/No se encontro el usuario: %s\n");
-			   write(socketInvitado,respuesta,strlen(respuesta));
+			
+			// Asegurarse de incluir el carÃ¡cter nulo al enviar
+			//write(sock_conn, respuesta, strlen(respuesta) + 1);
 		}
+		
 		else if (codigo==8) {
-			p = strtok(NULL, "/");
-			char aux[512];
-			strcpy(aux,p);
-			p = strtok(NULL, "/");
+			//Aqui el nombre aqui el el cliente invitador 
 			pthread_mutex_lock(&mutex);
-			int socketInvitador = BuscaSocketPorNombre(&miLista,p); // Buscar socket del cliente que ha invitado
+			int socketInvitador = BuscaSocketPorNombre(&miLista,nombre); // Buscar socket del cliente invitador
 			pthread_mutex_unlock(&mutex);
 			
 			if(socketInvitador !=-1) {
-				sprintf(respuestaINV,"8/%s",aux);
-				write(socketInvitador,respuesta,strlen(respuesta));
+				char respuestaBool[20];
+				p = strtok (NULL,"/");
+				//strcpy(respuestaBool,p);
+				sprintf(respuestaBool,"8/%s",p);
+				printf(respuestaBool);
+				write(socketInvitador,respuestaBool,strlen(respuestaBool));
+				
+				if (respuestaBool == "SI")
+					sprintf(respuesta,"9/Entrando en partida");
 			}
 			else
-			   printf(respuesta,"8/No se encontro el usuario: %s\n");
-				write(socketInvitador,respuesta,strlen(respuesta));
+			{
+			   sprintf(respuesta,"9/No se encontro el usuario invitador %s\n");
+			}
 		}
 		
-		if (codigo != 0 || codigo!= 7 || codigo !=8)
+		if (codigo != 0 || codigo!= 7 || codigo!= 8)
 		{
 			printf("Respuesta: %s\n", respuesta);
 			// Enviamos la respuesta
@@ -432,7 +447,7 @@ int main(int argc, char *argv[])
 	//htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	// escucharemos en el port 50000
-	serv_adr.sin_port = htons(50001);
+	serv_adr.sin_port = htons(50000);
 
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
