@@ -349,7 +349,10 @@ void* AtenderClientes(void* socket) {
 		if (EliminaConectado(&miLista, usuario_logueado) == -1)
 		{
 			printf("No se encontró al cliente %s en la lista de conectados\n", usuario_logueado);
-			
+		}
+		else
+		{
+			printf("El cliente %s ha sido eliminado de la lista de conectados\n", usuario_logueado);
 			//Notificamos a los clientes
 			char notificacion[20];
 			DameConectados(&miLista, conectados);
@@ -357,10 +360,6 @@ void* AtenderClientes(void* socket) {
 			int j;
 			for (j = 0; j < i; j++)
 				write(sockets[j], notificacion, strlen(notificacion));
-		}
-		else
-		{
-			printf("El cliente %s ha sido eliminado de la lista de conectados\n", usuario_logueado);
 
 		}
 		pthread_mutex_unlock(&mutex); //Ya puedes interrumpir el thread
@@ -389,7 +388,7 @@ int main(int argc, char *argv[])
 	//htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	// escucharemos en el port 50000
-	serv_adr.sin_port = htons(50001);
+	serv_adr.sin_port = htons(50000);
 
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
