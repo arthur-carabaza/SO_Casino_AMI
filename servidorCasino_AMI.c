@@ -8,6 +8,9 @@
 #include <mysql/mysql.h>
 #include <pthread.h>
 
+#define MAX_CLIENTES 100
+#define MAX_SALAS 10
+
 //Estructura necesaria para el acceso excluyente
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -22,13 +25,42 @@ typedef struct {
 	int num;
 } ListaConectados;
 
+typedef struct {
+	char mensaje[512];
+	char usuario[20];
+}Mensaje;
+
+typedef struct {
+	int numSockets;
+	int sockets[MAX_CLIENTES]; //Sockets de los clientes de la sala
+
+}Sala;
+
+typedef struct {
+	int num;
+	Sala salas[MAX_SALAS];
+}ListaSalas;
+
 
 //Lista de conectados que se inicializa con 0 conectados
 ListaConectados miLista;
+ListaSalas misSalas;
 char conectados[300];
 int i = 0;
 int sockets[100];
+Mensaje chatMensajes[100];
+int chatIndex = 0; //Indice del mensaje actual 
 
+int BuscarSalaPorSocket(ListaSalas *listaSalas, int socket) {
+	for (int i = 0; i < listaSalas->num; i++) {
+		for (int j = 0; j < listaSalas->salas[i].numSockets; j++) {
+			if (listaSalas->salas[i].sockets[j] == socket) {
+				return i; // Devuelve el √≠ndice de la sala en la lista
+			}
+		}
+	}
+	return -1; // No se encontr√≥ la sala
+}
 
 int PonConectado(ListaConectados *lista, char nombre[20], int socket) {
 	//AÒade nuevo conectado a una lista de conectados
@@ -42,6 +74,19 @@ int PonConectado(ListaConectados *lista, char nombre[20], int socket) {
 		return 0;
 	}
 }
+
+int PonSala(ListaSalas *lista, Sala nuevaSala) {
+	// A√±ade una nueva sala a la lista de salas
+	// Devuelve -1 si la lista est√° llena, 0 si se ha hecho correctamente
+	if (lista->num == MAX_SALAS)
+		return -1;
+	else {
+		lista->salas[lista->num] = nuevaSala;
+		lista->num++;
+		return 0;
+	}
+}
+
 int DamePosicion(ListaConectados *lista, char nombre[20]) {
 	//Devuelve posicon en la lista o -1 si  no est· en la lista de conectado
 	int i = 0;
@@ -106,7 +151,7 @@ void* AtenderClientes(void* socket) {
 
 	// Chars para trabajar con Peticion / Respuesta entre servidor y cleinte
 	char peticion[512];
-	char respuesta[512];
+	char respuesta[1024];
 	char respuestaINV[512];
 	int ret;
 
@@ -245,10 +290,10 @@ void* AtenderClientes(void* socket) {
 			}
 		}
 
-		else if ((codigo == 3 || codigo == 4 || codigo == 5))
+		else if (codigo == 3 || codigo == 4 || codigo == 5)
 		{
 			if (session_iniciada == 0) {
-				sprintf(respuesta, "Debes iniciar primero");
+				sprintf(respuesta, "9/Debes iniciar primero");
 			}
 
 			else {
@@ -338,57 +383,111 @@ void* AtenderClientes(void* socket) {
 				}
 			}
 		}
-		else if (codigo == 7) { // Peticion de invitacion
-			pthread_mutex_lock(&mutex);
-			int socketInvitado = BuscaSocketPorNombre(&miLista, nombre); // Buscar socket del cliente al que queremos enviar la invitaci√≥n 
-			pthread_mutex_unlock(&mutex);
-			
-			if (socketInvitado != -1) {
-				sprintf(respuesta, "9/Invitacion enviada");
-				
-				sprintf(respuestaINV, "7/%s",usuario_logueado);
-				write(socketInvitado,respuestaINV,strlen(respuestaINV));
-			} 
-			
-			else {
-				sprintf(respuesta, "9/No se encontro el usuario");
-			}
-			
-			// Asegurarse de incluir el car√°cter nulo al enviar
-			//write(sock_conn, respuesta, strlen(respuesta) + 1);
-		}
 		
-		else if (codigo==8) {
-			//Aqui el nombre aqui el el cliente invitador 
-			pthread_mutex_lock(&mutex);
-			int socketInvitador = BuscaSocketPorNombre(&miLista,nombre); // Buscar socket del cliente invitador
-			pthread_mutex_unlock(&mutex);
-			
-			if(socketInvitador !=-1) {
-				char respuestaBool[20];
-				p = strtok (NULL,"/");
-				//strcpy(respuestaBool,p);
-				sprintf(respuestaBool,"8/%s",p);
-				printf(respuestaBool);
-				write(socketInvitador,respuestaBool,strlen(respuestaBool));
-				
-				if (respuestaBool == "SI")
-					sprintf(respuesta,"9/Entrando en partida");
-			}
-			else
+		else if (codigo ==7 || codigo ==8)
+		{
+			if (session_iniciada == 0) 
 			{
-			   sprintf(respuesta,"9/No se encontro el usuario invitador %s\n");
+				sprintf(respuesta, "9/Debes iniciar session primero");
+			}
+			else 
+			{
+				if (codigo == 7) 
+				{ // Peticion de invitacion
+					pthread_mutex_lock(&mutex);
+					int socketInvitado = BuscaSocketPorNombre(&miLista, nombre); // Buscar socket del cliente al que queremos enviar la invitaci√≥n 
+					pthread_mutex_unlock(&mutex);
+			
+					if (socketInvitado != -1) {
+						sprintf(respuesta, "9/Invitacion enviada");
+				
+						sprintf(respuestaINV, "7/%s",usuario_logueado);
+						write(socketInvitado,respuestaINV,strlen(respuestaINV));
+					} 
+					else {
+						sprintf(respuesta, "9/No se encontro el usuario");
+					}
+				}
+				
+				else if (codigo == 8) { // El cliente responde a la invitaci√≥n 
+					pthread_mutex_lock(&mutex); 
+					int socketInvitador = BuscaSocketPorNombre(&miLista, nombre); // Buscar socket del cliente invitador 
+					pthread_mutex_unlock(&mutex); 
+					
+					if (socketInvitador != -1) { 
+						char respuestaBool[20]; 
+						p = strtok(NULL, "/"); 
+						sprintf(respuestaBool, "8/%s", p); 
+						printf("Respuesta: %s\n", respuestaBool); 
+						
+						write(socketInvitador, respuestaBool, strlen(respuestaBool)); 
+						
+						if (strcmp(respuestaBool, "8/SI") == 0) { 
+							// Crear la sala y a√±adir los sockets 
+							Sala nuevaSala; nuevaSala.numSockets = 2;
+							nuevaSala.sockets[0] = sock_conn; 
+							nuevaSala.sockets[1] = socketInvitador; 
+							if (PonSala(&misSalas, nuevaSala) == 0) { 
+								printf("Sala creada y aÒadida a la lista\n"); 
+								sprintf(respuesta, "9/Partida creada, entrando en partida"); 
+							} 
+							else { 
+								printf("Error: Lista de salas llena\n"); 
+								sprintf(respuesta, "9/Error al crear la sala");
+							}
+						}
+						else if (strcmp(respuestaBool, "8/NO") == 0) { 
+							sprintf(respuesta, "9/Invitaci√≥n rechazada"); 
+						} 
+					} 
+					else { 
+						sprintf(respuesta, "9/No se encuentra al usuario invitador"); 
+					} 
+				}
 			}
 		}
 		
-		if (codigo != 0 || codigo!= 7 || codigo!= 8)
+		else if (codigo == 10) { // Enviar mensaje de chat
+			if (session_iniciada == 0) {
+				sprintf(respuesta, "10/Debes iniciar sesiÛn primero");
+			}
+			else {
+				// Obtener el mensaje del cliente
+				p = strtok(NULL, "/");
+				char mensaje[512];
+				strcpy(mensaje, p);
+
+				// Formatear el mensaje para enviar a todos los clientes de la sala
+				sprintf(respuesta, "10/%s: %s", usuario_logueado, mensaje);
+
+				// Buscar la sala en la que est· el usuario
+				int indiceSala = BuscarSalaPorSocket(&misSalas, sock_conn);
+				if (indiceSala != -1) {
+					// Enviar el mensaje a todos los clientes de la sala correspondiente
+					Sala* sala = &misSalas.salas[indiceSala];
+					for (int i = 0; i < sala->numSockets; i++) {
+						if (sala->sockets[i] != sock_conn) {	
+							printf("Enviando mensaje a socket %d: %s\n", sala->sockets[i], respuesta);
+							write(sala->sockets[i], respuesta, strlen(respuesta));
+						}
+					}
+				}
+				else {
+					printf("Error: No se encontrÛ la sala para el socket %d\n", sock_conn);
+					sprintf(respuesta, "10/Error al enviar el mensaje: sala no encontrada");
+					write(sock_conn, respuesta, strlen(respuesta));
+				}
+			}
+		}
+		
+		if (codigo != 0 || codigo!= 7 || codigo!= 8 || codigo!= 10)
 		{
 			printf("Respuesta: %s\n", respuesta);
 			// Enviamos la respuesta
 			write(sock_conn, respuesta, strlen(respuesta));
 		}
 		
-		if (codigo == 1)
+		if (codigo == 1 || codigo == 0)
 		{
 			//Notificamos a los clientes
 			char notificacion[20];
@@ -407,7 +506,10 @@ void* AtenderClientes(void* socket) {
 		if (EliminaConectado(&miLista, usuario_logueado) == -1)
 		{
 			printf("No se encontrÛ al cliente %s en la lista de conectados\n", usuario_logueado);
-			
+		}
+		else
+		{
+			printf("El cliente %s ha sido eliminado de la lista de conectados\n", usuario_logueado);
 			//Notificamos a los clientes
 			char notificacion[20];
 			DameConectados(&miLista, conectados);
@@ -415,10 +517,6 @@ void* AtenderClientes(void* socket) {
 			int j;
 			for (j = 0; j < i; j++)
 				write(sockets[j], notificacion, strlen(notificacion));
-		}
-		else
-		{
-			printf("El cliente %s ha sido eliminado de la lista de conectados\n", usuario_logueado);
 
 		}
 		pthread_mutex_unlock(&mutex); //Ya puedes interrumpir el thread
@@ -456,6 +554,7 @@ int main(int argc, char *argv[])
 		printf("Error en el Listen");
 
 	miLista.num = 0;
+	misSalas.num = 0; //Inicializamos el numero de sockets en la sala
 	pthread_t thread;
 
 	//bucle infinito

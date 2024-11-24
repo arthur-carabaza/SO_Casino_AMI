@@ -48,17 +48,18 @@ namespace WindowsFormsApplication1
             while (true)
             {
                 //recibimos mensaje del servidor
-                byte[] msg2 = new byte[80];
+                byte[] msg2 = new byte[1024]; //Memoria ampliada de 1024 bytes
                 server.Receive(msg2);
                 string [] trozos = Encoding.ASCII.GetString(msg2).Split('/');
-                int codigo = Convert.ToInt32(trozos[0]);    
+                int codigo = Convert.ToInt32(trozos[0]);
                 string mensaje = trozos[1].Split('\0')[0];
+
 
                 switch (codigo)
                 {
                     case 1: //Respuesta a iniciar session
                         MessageBox.Show(mensaje);
-                        label3.Text = nombre.Text;
+                        NombrePartida.Text = nombre.Text;
                         break;
 
                     case 2: //Respuesta a registro
@@ -121,8 +122,13 @@ namespace WindowsFormsApplication1
                         }
                         break;
 
-                    case 9:  //Apartado para la respuesta del invitador y error en caso de que el invitador de desconecte(raro)
+                    case 9:  //Manejar mensajes de creacion de partidas en general 
                         MessageBox.Show(mensaje);
+                        break;
+
+                    case 10: //Mensaje de chat
+                        string chatMessage = mensaje;
+                        Chatbox.AppendText(chatMessage+Environment.NewLine);
                         break;
                 }
             }
@@ -212,7 +218,10 @@ namespace WindowsFormsApplication1
             this.Update();
 
             ListaConectados.Text = null;
-            label3.Text = null;
+            NombrePartida.Text = null;
+            nombre.Text = null;
+            Password.Text = null;
+
             server.Shutdown(SocketShutdown.Both);
             server.Close();
         }
@@ -249,6 +258,22 @@ namespace WindowsFormsApplication1
                 string mensaje = "7/" + NombreInvitado;
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
+            }
+
+            InvitarBox.Text = null;
+        }
+
+        private void EnviarMensaje_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(MensajeChat.Text)) { 
+                MessageBox.Show("Escriba un mensaje antes de enviarlo");
+            }
+            else
+            {
+                string mensaje = "10/" + nombre.Text + "/" + MensajeChat.Text; 
+                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje); 
+                server.Send(msg); 
+                MensajeChat.Text = ""; // Limpiar el campo de texto después de enviar el mensaje
             }
         }
     }
