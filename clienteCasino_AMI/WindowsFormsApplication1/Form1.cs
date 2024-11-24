@@ -18,10 +18,37 @@ namespace WindowsFormsApplication1
         Thread atender;
 
         bool conectado = false;
+
+        delegate void DelegadoParaEscribir(string mensaje);
+        delegate void DelegadoParaActualizarLista(string mensaje);
+        delegate void DelegadoParaMostrarMensaje(string mensaje);
+        delegate void DelegadoParaActualizarNombrePartida(string nombre);
+
+        private void ActualizarNombrePartida(string nombre)
+        {
+            NombrePartida.Text = nombre;
+        }
+
+
+        private void EscribirEnChatbox(string mensaje)
+        {
+            Chatbox.AppendText(mensaje + Environment.NewLine);
+        }
+
+        private void ActualizarListaConectados(string mensaje)
+        {
+            ListaConectados.Text = mensaje;
+        }
+
+        private void MostrarMensaje(string mensaje)
+        {
+            MessageBox.Show(mensaje);
+        }
+
+
         public Form1()
         {
             InitializeComponent();
-            CheckForIllegalCrossThreadCalls = false;
                 
         }
 
@@ -47,20 +74,23 @@ namespace WindowsFormsApplication1
         {
             while (true)
             {
-                //recibimos mensaje del servidor
+                //Recibimos mensaje del servidor
                 byte[] msg2 = new byte[1024]; //Memoria ampliada de 1024 bytes
-                server.Receive(msg2);
-                string [] trozos = Encoding.ASCII.GetString(msg2).Split('/');
-                int codigo = Convert.ToInt32(trozos[0]);
-                string mensaje = trozos[1].Split('\0')[0];
+                int bytesRecibidos = server.Receive(msg2); 
+                string mensajeCompleto = Encoding.ASCII.GetString(msg2, 0, bytesRecibidos); 
+                string[] trozos = mensajeCompleto.Split('/');
+                int codigo = Convert.ToInt32(trozos[0]); 
+                string mensaje = trozos.Length > 1 ? trozos[1].Split('\0')[0] : string.Empty; 
+                string nombre = nombreTextBox.Text;
 
 
                 switch (codigo)
                 {
-                    case 1: //Respuesta a iniciar session
-                        MessageBox.Show(mensaje);
-                        NombrePartida.Text = nombre.Text;
-                        break;
+                    case 1: //Respuesta a iniciar sesión
+                        this.Invoke(new DelegadoParaMostrarMensaje(MostrarMensaje), new object[] { mensaje });
+                        this.Invoke(new DelegadoParaActualizarNombrePartida(ActualizarNombrePartida), new object[] { nombre });
+                    break;
+
 
                     case 2: //Respuesta a registro
                         MessageBox.Show(mensaje);
@@ -78,9 +108,9 @@ namespace WindowsFormsApplication1
                         MessageBox.Show(mensaje);
                         break;
 
-                    case 6: //Notificacion
-                        
-                        ListaConectados.Text = mensaje; 
+                    case 6: //Notificacion de conectados
+
+                        this.Invoke(new DelegadoParaActualizarLista(ActualizarListaConectados), new object[] { mensaje }); 
                         break;
 
                     case 7: //Notificacion de invitacion
@@ -123,12 +153,11 @@ namespace WindowsFormsApplication1
                         break;
 
                     case 9:  //Manejar mensajes de creacion de partidas en general 
-                        MessageBox.Show(mensaje);
+                        this.Invoke(new DelegadoParaMostrarMensaje(MostrarMensaje), new object[] { mensaje }); 
                         break;
 
                     case 10: //Mensaje de chat
-                        string chatMessage = mensaje;
-                        Chatbox.AppendText(chatMessage+Environment.NewLine);
+                        this.Invoke(new DelegadoParaEscribir(EscribirEnChatbox), new object[] { mensaje }); 
                         break;
                 }
             }
@@ -174,7 +203,7 @@ namespace WindowsFormsApplication1
             if (Dinero.Checked)
             {
                 //Quiere saber cuanto dinero tiene
-                string mensaje = "3/" + nombre.Text;
+                string mensaje = "3/" + nombreTextBox.Text;
                 try
                 {
                     // Enviamos al servidor el nombre tecleado
@@ -189,7 +218,7 @@ namespace WindowsFormsApplication1
             else if (Victorias.Checked)
             {
                 //Quiere saber cuantas victoras tengo
-                string mensaje = "4/" + nombre.Text;
+                string mensaje = "4/" + nombreTextBox.Text;
                 // Enviamos al servidor el nombre tecleado
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
@@ -197,7 +226,7 @@ namespace WindowsFormsApplication1
             else
             {
                 //Quiere saber que cartas tengo
-                string mensaje = "5/" + nombre.Text;
+                string mensaje = "5/" + nombreTextBox.Text;
                 // Enviamos al servidor el nombre tecleado
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
@@ -219,7 +248,7 @@ namespace WindowsFormsApplication1
 
             ListaConectados.Text = null;
             NombrePartida.Text = null;
-            nombre.Text = null;
+            nombreTextBox.Text = null;
             Password.Text = null;
 
             server.Shutdown(SocketShutdown.Both);
@@ -229,7 +258,7 @@ namespace WindowsFormsApplication1
         private void login_Click(object sender, EventArgs e)
         {
             //Quiere iniciar session
-            string mensaje = "1/" + nombre.Text + "/" + Password.Text;
+            string mensaje = "1/" + nombreTextBox.Text + "/" + Password.Text;
             // Enviamos al servidor el nombre tecleado y la contraseña
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
             server.Send(msg);          
@@ -237,7 +266,7 @@ namespace WindowsFormsApplication1
         private void registrarse_Click(object sender, EventArgs e)
         {
             //Quiere registrarse
-            string mensaje = "2/" + nombre.Text + "/" + Password.Text;
+            string mensaje = "2/" + nombreTextBox.Text + "/" + Password.Text;
             // Enviamos al servidor el nombre tecleado y la contraseña
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
             server.Send(msg);
@@ -270,7 +299,7 @@ namespace WindowsFormsApplication1
             }
             else
             {
-                string mensaje = "10/" + nombre.Text + "/" + MensajeChat.Text; 
+                string mensaje = "10/" + nombreTextBox.Text + "/" + MensajeChat.Text; 
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje); 
                 server.Send(msg); 
                 MensajeChat.Text = ""; // Limpiar el campo de texto después de enviar el mensaje

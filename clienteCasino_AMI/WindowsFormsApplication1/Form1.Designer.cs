@@ -20,7 +20,7 @@ namespace WindowsFormsApplication1
         private void InitializeComponent()
         {
             this.label2 = new System.Windows.Forms.Label();
-            this.nombre = new System.Windows.Forms.TextBox();
+            this.nombreTextBox = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.InvitarButton = new System.Windows.Forms.Button();
@@ -55,14 +55,14 @@ namespace WindowsFormsApplication1
             this.label2.TabIndex = 1;
             this.label2.Text = "Nombre";
             // 
-            // nombre
+            // nombreTextBox
             // 
-            this.nombre.Font = new System.Drawing.Font("Segoe UI", 12F);
-            this.nombre.Location = new System.Drawing.Point(178, 40);
-            this.nombre.Margin = new System.Windows.Forms.Padding(4);
-            this.nombre.Name = "nombre";
-            this.nombre.Size = new System.Drawing.Size(217, 34);
-            this.nombre.TabIndex = 3;
+            this.nombreTextBox.Font = new System.Drawing.Font("Segoe UI", 12F);
+            this.nombreTextBox.Location = new System.Drawing.Point(178, 40);
+            this.nombreTextBox.Margin = new System.Windows.Forms.Padding(4);
+            this.nombreTextBox.Name = "nombreTextBox";
+            this.nombreTextBox.Size = new System.Drawing.Size(217, 34);
+            this.nombreTextBox.TabIndex = 3;
             // 
             // button2
             // 
@@ -92,7 +92,7 @@ namespace WindowsFormsApplication1
             this.groupBox1.Controls.Add(this.Dinero);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.button2);
-            this.groupBox1.Controls.Add(this.nombre);
+            this.groupBox1.Controls.Add(this.nombreTextBox);
             this.groupBox1.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.groupBox1.Location = new System.Drawing.Point(16, 140);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
@@ -341,7 +341,7 @@ namespace WindowsFormsApplication1
         #endregion
 
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox nombre;
+        private System.Windows.Forms.TextBox nombreTextBox;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RadioButton Cartas;
