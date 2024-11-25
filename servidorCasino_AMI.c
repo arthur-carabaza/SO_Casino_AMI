@@ -55,15 +55,15 @@ int BuscarSalaPorSocket(ListaSalas *listaSalas, int socket) {
 	for (int i = 0; i < listaSalas->num; i++) {
 		for (int j = 0; j < listaSalas->salas[i].numSockets; j++) {
 			if (listaSalas->salas[i].sockets[j] == socket) {
-				return i; // Devuelve el índice de la sala en la lista
+				return i; // Devuelve el Ã­ndice de la sala en la lista
 			}
 		}
 	}
-	return -1; // No se encontró la sala
+	return -1; // No se encontrÃ³ la sala
 }
 
 int PonConectado(ListaConectados *lista, char nombre[20], int socket) {
-	//A�ade nuevo conectado a una lista de conectados
+	//Añade nuevo conectado a una lista de conectados
 	//Devuelva -1 si la llista esta llena, 0 si se ha hecho correctamente
 	if (lista->num == 100)
 		return -1;
@@ -76,8 +76,8 @@ int PonConectado(ListaConectados *lista, char nombre[20], int socket) {
 }
 
 int PonSala(ListaSalas *lista, Sala nuevaSala) {
-	// Añade una nueva sala a la lista de salas
-	// Devuelve -1 si la lista está llena, 0 si se ha hecho correctamente
+	// AÃ±ade una nueva sala a la lista de salas
+	// Devuelve -1 si la lista estÃ¡ llena, 0 si se ha hecho correctamente
 	if (lista->num == MAX_SALAS)
 		return -1;
 	else {
@@ -88,7 +88,7 @@ int PonSala(ListaSalas *lista, Sala nuevaSala) {
 }
 
 int DamePosicion(ListaConectados *lista, char nombre[20]) {
-	//Devuelve posicon en la lista o -1 si  no est� en la lista de conectado
+	//Devuelve posicon en la lista o -1 si  no está en la lista de conectado
 	int i = 0;
 	int encontrado = 0;
 	while ((i < lista->num) && !encontrado)
@@ -162,17 +162,17 @@ void* AtenderClientes(void* socket) {
 	MYSQL_ROW row;
 	int err;
 	
-	// Conexi�n a la base de datos MySQL
+	// Conexión a la base de datos MySQL
 	conn = mysql_init(NULL);
 	if (conn == NULL) 
 	{
-		printf("Error al crear la conexi�n MySQL: %u %s\n", mysql_errno(conn), mysql_error(conn));
+		printf("Error al crear la conexión MySQL: %u %s\n", mysql_errno(conn), mysql_error(conn));
 		exit(1);
 	}
 	
-	if (mysql_real_connect(conn, "localhost", "root", "mysql", "JuegoPoker", 0, NULL, 0) == NULL) 
+	if (mysql_real_connect(conn, "shiva2.upc.es", "root", "mysql", "M1_JuegoPoker", 0, NULL, 0) == NULL) 
 	{
-		printf("Error al inicializar la conexi�n con la base de datos: %u %s\n", mysql_errno(conn), mysql_error(conn));
+		printf("Error al inicializar la conexión con la base de datos: %u %s\n", mysql_errno(conn), mysql_error(conn));
 		mysql_close(conn);
 		exit(1);
 	}
@@ -187,14 +187,14 @@ void* AtenderClientes(void* socket) {
 		strcpy(respuesta,"");
 
 		ret = read(sock_conn, peticion, sizeof(peticion));
-		printf("Recibida una petici�n\n");
+		printf("Recibida una petición\n");
 		// Tenemos que a?adirle la marca de fin de string 
 		// para que no escriba lo que hay despues en el buffer
 		peticion[ret] = '\0';
 
 		//Escribimos la peticion en la consola
 
-		printf("La petici�n es: %s\n", peticion);
+		printf("La petición es: %s\n", peticion);
 
 		char* p = strtok(peticion, "/");
 		int codigo = atoi(p);
@@ -217,7 +217,7 @@ void* AtenderClientes(void* socket) {
 			p = strtok(NULL, "/");
 			strcpy(password, p);
 
-			// Consulta para verificar si el usuario existe y coincide la contrase�a
+			// Consulta para verificar si el usuario existe y coincide la contraseña
 			char query[256];
 			sprintf(query, "SELECT password FROM Jugadores WHERE usuario='%s'", nombre);
 
@@ -239,25 +239,25 @@ void* AtenderClientes(void* socket) {
 				{
 					if (strcmp(row[0], password) == 0)
 					{
-						sprintf(respuesta, "1/Inicio de sesi�n correcto");
+						sprintf(respuesta, "1/Inicio de sesión correcto");
 						strcpy(usuario_logueado, nombre);
 						session_iniciada = 1;
 
-						// Ahora a�adimos al cliente a la lista de conectados
+						// Ahora añadimos al cliente a la lista de conectados
 						pthread_mutex_lock(&mutex); //No me interrumpas ahora el proceso de este thread
 						if (PonConectado(&miLista, nombre, sock_conn) == -1)
 						{
-							printf("La lista de conectados est� llena\n");
+							printf("La lista de conectados está llena\n");
 						}
 						else
 						{
-							printf("El cliente %s se ha a�adido a la lista de conectados\n", nombre);
+							printf("El cliente %s se ha añadido a la lista de conectados\n", nombre);
 						}
 						pthread_mutex_unlock(&mutex); //Ya puedes interrumpir el proceso de este thread
 					}
 					else
 					{
-						sprintf(respuesta, "1/Contrase�a incorrecta");
+						sprintf(respuesta, "1/Contraseña incorrecta");
 					}
 				}
 				mysql_free_result(res);
@@ -276,7 +276,7 @@ void* AtenderClientes(void* socket) {
 
 			err = mysql_query(conn, query);
 			if (err != 0) {
-				if (mysql_errno(conn) == 1062) {  // C�digo de error para duplicados
+				if (mysql_errno(conn) == 1062) {  // Código de error para duplicados
 					sprintf(respuesta, "2/El nombre de usuario ya existe");
 				}
 				else {
@@ -395,7 +395,7 @@ void* AtenderClientes(void* socket) {
 				if (codigo == 7) 
 				{ // Peticion de invitacion
 					pthread_mutex_lock(&mutex);
-					int socketInvitado = BuscaSocketPorNombre(&miLista, nombre); // Buscar socket del cliente al que queremos enviar la invitación 
+					int socketInvitado = BuscaSocketPorNombre(&miLista, nombre); // Buscar socket del cliente al que queremos enviar la invitaciÃ³n 
 					pthread_mutex_unlock(&mutex);
 			
 					if (socketInvitado != -1) {
@@ -409,7 +409,7 @@ void* AtenderClientes(void* socket) {
 					}
 				}
 				
-				else if (codigo == 8) { // El cliente responde a la invitación 
+				else if (codigo == 8) { // El cliente responde a la invitaciÃ³n 
 					pthread_mutex_lock(&mutex); 
 					int socketInvitador = BuscaSocketPorNombre(&miLista, nombre); // Buscar socket del cliente invitador 
 					pthread_mutex_unlock(&mutex); 
@@ -423,12 +423,12 @@ void* AtenderClientes(void* socket) {
 						write(socketInvitador, respuestaBool, strlen(respuestaBool)); 
 						
 						if (strcmp(respuestaBool, "8/SI") == 0) { 
-							// Crear la sala y añadir los sockets 
+							// Crear la sala y aÃ±adir los sockets 
 							Sala nuevaSala; nuevaSala.numSockets = 2;
 							nuevaSala.sockets[0] = sock_conn; 
 							nuevaSala.sockets[1] = socketInvitador; 
 							if (PonSala(&misSalas, nuevaSala) == 0) { 
-								printf("Sala creada y a�adida a la lista\n"); 
+								printf("Sala creada y añadida a la lista\n"); 
 								sprintf(respuesta, "9/Partida creada, entrando en partida"); 
 							} 
 							else { 
@@ -437,7 +437,7 @@ void* AtenderClientes(void* socket) {
 							}
 						}
 						else if (strcmp(respuestaBool, "8/NO") == 0) { 
-							sprintf(respuesta, "9/Invitación rechazada"); 
+							sprintf(respuesta, "9/InvitaciÃ³n rechazada"); 
 						} 
 					} 
 					else { 
@@ -449,7 +449,7 @@ void* AtenderClientes(void* socket) {
 		
 		else if (codigo == 10) { // Enviar mensaje de chat
 			if (session_iniciada == 0) {
-				sprintf(respuesta, "10/Debes iniciar sesi�n primero");
+				sprintf(respuesta, "10/Debes iniciar sesión primero");
 			}
 			else {
 				// Obtener el mensaje del cliente
@@ -460,7 +460,7 @@ void* AtenderClientes(void* socket) {
 				// Formatear el mensaje para enviar a todos los clientes de la sala
 				sprintf(respuesta, "10/%s: %s", usuario_logueado, mensaje);
 
-				// Buscar la sala en la que est� el usuario
+				// Buscar la sala en la que está el usuario
 				int indiceSala = BuscarSalaPorSocket(&misSalas, sock_conn);
 				if (indiceSala != -1) {
 					// Enviar el mensaje a todos los clientes de la sala correspondiente
@@ -473,7 +473,7 @@ void* AtenderClientes(void* socket) {
 					}
 				}
 				else {
-					printf("Error: No se encontr� la sala para el socket %d\n", sock_conn);
+					printf("Error: No se encontró la sala para el socket %d\n", sock_conn);
 					sprintf(respuesta, "10/Error al enviar el mensaje: sala no encontrada");
 					write(sock_conn, respuesta, strlen(respuesta));
 				}
@@ -505,7 +505,7 @@ void* AtenderClientes(void* socket) {
 		// Elimina el cliente de la lista de conectados
 		if (EliminaConectado(&miLista, usuario_logueado) == -1)
 		{
-			printf("No se encontr� al cliente %s en la lista de conectados\n", usuario_logueado);
+			printf("No se encontró al cliente %s en la lista de conectados\n", usuario_logueado);
 		}
 		else
 		{
