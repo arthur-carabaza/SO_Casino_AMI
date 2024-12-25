@@ -11,10 +11,10 @@
 #define MAX_CLIENTES 100
 #define MAX_SALAS 10
 
-//Estructura necesaria para el acceso excluyente
+//MUTEX - Nos permite tener acceso excluyente a objetos publicos
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-//Definimos estructuras i funciones para trabajar con la lista de conectados
+//ESTRUCTURAS OBJETOS - Conectado, LConectado, Mensaje, Sala, LSala
 typedef struct {
 	char nombre[20];
 	int socket;
@@ -42,7 +42,7 @@ typedef struct {
 }ListaSalas;
 
 
-//Lista de conectados que se inicializa con 0 conectados
+//INICIALIZAMOS LISTAS Y OBJETOS IMPORTANTES
 ListaConectados miLista;
 ListaSalas misSalas;
 char conectados[300];
@@ -51,15 +51,26 @@ int sockets[100];
 Mensaje chatMensajes[100];
 int chatIndex = 0; //Indice del mensaje actual 
 
+//METODOS RECURRENTES - Poner, Quitar, Dar conectados, salas y sockets
+
 int BuscarSalaPorSocket(ListaSalas *listaSalas, int socket) {
+	//Devuelve -1 si no encuentra la sala, devuelve el indice de la sala en la lista, donde se encuentra el socket dado
 	for (int i = 0; i < listaSalas->num; i++) {
 		for (int j = 0; j < listaSalas->salas[i].numSockets; j++) {
 			if (listaSalas->salas[i].sockets[j] == socket) {
+<<<<<<< Updated upstream
 				return i; // Devuelve el índice de la sala en la lista
 			}
 		}
 	}
 	return -1; // No se encontró la sala
+=======
+				return i; // Devuelve el i­ndice de la sala en la lista
+			}
+		}
+	}
+	return -1; // No se encuentra la sala
+>>>>>>> Stashed changes
 }
 
 int PonConectado(ListaConectados *lista, char nombre[20], int socket) {
@@ -77,7 +88,11 @@ int PonConectado(ListaConectados *lista, char nombre[20], int socket) {
 
 int PonSala(ListaSalas *lista, Sala nuevaSala) {
 	// Añade una nueva sala a la lista de salas
+<<<<<<< Updated upstream
 	// Devuelve -1 si la lista está llena, 0 si se ha hecho correctamente
+=======
+	// Devuelve -1 si la lista esta¡ llena, 0 si se ha hecho correctamente
+>>>>>>> Stashed changes
 	if (lista->num == MAX_SALAS)
 		return -1;
 	else {
@@ -143,6 +158,7 @@ void DameConectados(ListaConectados* lista, char conectados[300]) {
 
 }
 
+//FUNCION ATENDER CLIENTES
 void* AtenderClientes(void* socket) {
 	int sock_conn;
 	int* s;
@@ -203,6 +219,7 @@ void* AtenderClientes(void* socket) {
 		char password[20];
 		char nombreInvitado[20];
 
+		//El codigo 0 y 6 no necesitan el nombre por tanto cualquier peticion que no sean estas dos se asigna ya la primera parte de la peticion al nombre
 		if ((codigo != 0)&&(codigo !=6))
 		{
 			p = strtok(NULL, "/");
