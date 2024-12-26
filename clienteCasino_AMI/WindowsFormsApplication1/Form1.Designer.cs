@@ -35,11 +35,7 @@ namespace WindowsFormsApplication1
             this.conectar = new System.Windows.Forms.Button();
             this.desconectar = new System.Windows.Forms.Button();
             this.NombrePartida = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
             this.ListaConectados = new System.Windows.Forms.Label();
-            this.EnviarMensaje = new System.Windows.Forms.Button();
-            this.Chatbox = new System.Windows.Forms.TextBox();
-            this.MensajeChat = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -249,24 +245,11 @@ namespace WindowsFormsApplication1
             this.NombrePartida.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.NombrePartida.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.NombrePartida.ForeColor = System.Drawing.SystemColors.Control;
-            this.NombrePartida.Location = new System.Drawing.Point(1234, 495);
+            this.NombrePartida.Location = new System.Drawing.Point(78, 19);
             this.NombrePartida.Name = "NombrePartida";
             this.NombrePartida.Size = new System.Drawing.Size(136, 30);
             this.NombrePartida.TabIndex = 9;
             this.NombrePartida.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // label4
-            // 
-            this.label4.BackColor = System.Drawing.Color.Black;
-            this.label4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label4.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.ForeColor = System.Drawing.SystemColors.Control;
-            this.label4.Location = new System.Drawing.Point(1265, 525);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(86, 37);
-            this.label4.TabIndex = 10;
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.label4.Click += new System.EventHandler(this.label4_Click);
             // 
             // ListaConectados
             // 
@@ -280,50 +263,13 @@ namespace WindowsFormsApplication1
             this.ListaConectados.TabIndex = 11;
             this.ListaConectados.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // EnviarMensaje
-            // 
-            this.EnviarMensaje.BackColor = System.Drawing.Color.DimGray;
-            this.EnviarMensaje.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.EnviarMensaje.ForeColor = System.Drawing.Color.White;
-            this.EnviarMensaje.Location = new System.Drawing.Point(731, 662);
-            this.EnviarMensaje.Margin = new System.Windows.Forms.Padding(4);
-            this.EnviarMensaje.Name = "EnviarMensaje";
-            this.EnviarMensaje.Size = new System.Drawing.Size(32, 39);
-            this.EnviarMensaje.TabIndex = 15;
-            this.EnviarMensaje.Text = ".";
-            this.EnviarMensaje.UseVisualStyleBackColor = false;
-            this.EnviarMensaje.Click += new System.EventHandler(this.EnviarMensaje_Click);
-            // 
-            // Chatbox
-            // 
-            this.Chatbox.Font = new System.Drawing.Font("Segoe UI", 12F);
-            this.Chatbox.Location = new System.Drawing.Point(403, 499);
-            this.Chatbox.Margin = new System.Windows.Forms.Padding(4);
-            this.Chatbox.Multiline = true;
-            this.Chatbox.Name = "Chatbox";
-            this.Chatbox.Size = new System.Drawing.Size(360, 155);
-            this.Chatbox.TabIndex = 16;
-            // 
-            // MensajeChat
-            // 
-            this.MensajeChat.Font = new System.Drawing.Font("Segoe UI", 12F);
-            this.MensajeChat.Location = new System.Drawing.Point(403, 667);
-            this.MensajeChat.Margin = new System.Windows.Forms.Padding(4);
-            this.MensajeChat.Name = "MensajeChat";
-            this.MensajeChat.Size = new System.Drawing.Size(320, 34);
-            this.MensajeChat.TabIndex = 17;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
-            this.ClientSize = new System.Drawing.Size(1680, 847);
-            this.Controls.Add(this.MensajeChat);
-            this.Controls.Add(this.Chatbox);
-            this.Controls.Add(this.EnviarMensaje);
+            this.ClientSize = new System.Drawing.Size(794, 614);
             this.Controls.Add(this.ListaConectados);
-            this.Controls.Add(this.label4);
             this.Controls.Add(this.NombrePartida);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.conectar);
@@ -334,7 +280,6 @@ namespace WindowsFormsApplication1
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -354,12 +299,8 @@ namespace WindowsFormsApplication1
         private System.Windows.Forms.Button registrarse;
         private System.Windows.Forms.Button login;
         private System.Windows.Forms.Label NombrePartida;
-        private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label ListaConectados;
         private System.Windows.Forms.Button InvitarButton;
         private System.Windows.Forms.TextBox InvitarBox;
-        private System.Windows.Forms.Button EnviarMensaje;
-        private System.Windows.Forms.TextBox Chatbox;
-        private System.Windows.Forms.TextBox MensajeChat;
     }
 }

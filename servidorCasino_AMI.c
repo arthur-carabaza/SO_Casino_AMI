@@ -39,27 +39,27 @@ typedef struct {
 typedef struct {
 	int num;
 	Sala salas[MAX_SALAS];
-}ListaSalas;
+}ListaSala;
 
 
 //Lista de conectados que se inicializa con 0 conectados
-ListaConectados miLista;
-ListaSalas misSalas;
+ListaConectados ListaContectados;
+ListaSala ListaSalas;
 char conectados[300];
 int i = 0;
 int sockets[100];
 Mensaje chatMensajes[100];
 int chatIndex = 0; //Indice del mensaje actual 
 
-int BuscarSalaPorSocket(ListaSalas *listaSalas, int socket) {
+int BuscarSalaPorSocket(ListaSala *listaSalas, int socket) {
 	for (int i = 0; i < listaSalas->num; i++) {
 		for (int j = 0; j < listaSalas->salas[i].numSockets; j++) {
 			if (listaSalas->salas[i].sockets[j] == socket) {
-				return i; // Devuelve el Ã­ndice de la sala en la lista
+				return i; // Devuelve el indice de la sala en la lista
 			}
 		}
 	}
-	return -1; // No se encontrÃ³ la sala
+	return -1; // No se encontr la sala
 }
 
 int PonConectado(ListaConectados *lista, char nombre[20], int socket) {
@@ -75,15 +75,16 @@ int PonConectado(ListaConectados *lista, char nombre[20], int socket) {
 	}
 }
 
-int PonSala(ListaSalas *lista, Sala nuevaSala) {
-	// AÃ±ade una nueva sala a la lista de salas
+int PonSala(ListaSala *lista, Sala nuevaSala) {
+	// Añade una nueva sala a la lista de salas
 	// Devuelve -1 si la lista estÃ¡ llena, 0 si se ha hecho correctamente
 	if (lista->num == MAX_SALAS)
 		return -1;
 	else {
 		lista->salas[lista->num] = nuevaSala;
 		lista->num++;
-		return 0;
+		int num = lista->num;
+		return num;
 	}
 }
 
@@ -143,7 +144,8 @@ void DameConectados(ListaConectados* lista, char conectados[300]) {
 
 }
 
-void* AtenderClientes(void* socket) {
+void* AtenderClientes(void* socket) 
+{
 	int sock_conn;
 	int* s;
 	s = (int*)socket;
@@ -170,7 +172,7 @@ void* AtenderClientes(void* socket) {
 		exit(1);
 	}
 	
-	if (mysql_real_connect(conn, "shiva2.upc.es", "root", "mysql", "M1_JuegoPoker", 0, NULL, 0) == NULL) 
+	if (mysql_real_connect(conn, "localhost", "root", "mysql", "JuegoPoker", 0, NULL, 0) == NULL) 
 	{
 		printf("Error al inicializar la conexión con la base de datos: %u %s\n", mysql_errno(conn), mysql_error(conn));
 		mysql_close(conn);
@@ -245,7 +247,7 @@ void* AtenderClientes(void* socket) {
 
 						// Ahora añadimos al cliente a la lista de conectados
 						pthread_mutex_lock(&mutex); //No me interrumpas ahora el proceso de este thread
-						if (PonConectado(&miLista, nombre, sock_conn) == -1)
+						if (PonConectado(&ListaContectados, nombre, sock_conn) == -1)
 						{
 							printf("La lista de conectados está llena\n");
 						}
@@ -395,7 +397,7 @@ void* AtenderClientes(void* socket) {
 				if (codigo == 7) 
 				{ // Peticion de invitacion
 					pthread_mutex_lock(&mutex);
-					int socketInvitado = BuscaSocketPorNombre(&miLista, nombre); // Buscar socket del cliente al que queremos enviar la invitaciÃ³n 
+					int socketInvitado = BuscaSocketPorNombre(&ListaContectados, nombre); // Buscar socket del cliente al que queremos enviar la invitaciÃ³n 
 					pthread_mutex_unlock(&mutex);
 			
 					if (socketInvitado != -1) {
@@ -411,7 +413,7 @@ void* AtenderClientes(void* socket) {
 				
 				else if (codigo == 8) { // El cliente responde a la invitaciÃ³n 
 					pthread_mutex_lock(&mutex); 
-					int socketInvitador = BuscaSocketPorNombre(&miLista, nombre); // Buscar socket del cliente invitador 
+					int socketInvitador = BuscaSocketPorNombre(&ListaContectados, nombre); // Buscar socket del cliente invitador 
 					pthread_mutex_unlock(&mutex); 
 					
 					if (socketInvitador != -1) { 
@@ -422,14 +424,14 @@ void* AtenderClientes(void* socket) {
 						
 						write(socketInvitador, respuestaBool, strlen(respuestaBool)); 
 						
-						if (strcmp(respuestaBool, "8/SI") == 0) { 
-							// Crear la sala y aÃ±adir los sockets 
+						if (strcmp(p, "SI") == 0) { 
+							// Crear la sala y añadir los sockets 
 							Sala nuevaSala; nuevaSala.numSockets = 2;
 							nuevaSala.sockets[0] = sock_conn; 
 							nuevaSala.sockets[1] = socketInvitador; 
-							if (PonSala(&misSalas, nuevaSala) == 0) { 
+							if (PonSala(&ListaSalas, nuevaSala) != -1) { 
 								printf("Sala creada y añadida a la lista\n"); 
-								sprintf(respuesta, "9/Partida creada, entrando en partida"); 
+								sprintf(respuesta, "9/Partida creada"); 
 							} 
 							else { 
 								printf("Error: Lista de salas llena\n"); 
@@ -437,7 +439,7 @@ void* AtenderClientes(void* socket) {
 							}
 						}
 						else if (strcmp(respuestaBool, "8/NO") == 0) { 
-							sprintf(respuesta, "9/InvitaciÃ³n rechazada"); 
+							sprintf(respuesta, "9/Invitacion rechazada"); 
 						} 
 					} 
 					else { 
@@ -448,10 +450,12 @@ void* AtenderClientes(void* socket) {
 		}
 		
 		else if (codigo == 10) { // Enviar mensaje de chat
-			if (session_iniciada == 0) {
+			if (session_iniciada == 0) 
+			{
 				sprintf(respuesta, "10/Debes iniciar sesión primero");
 			}
-			else {
+			else 
+			{
 				// Obtener el mensaje del cliente
 				p = strtok(NULL, "/");
 				char mensaje[512];
@@ -461,26 +465,29 @@ void* AtenderClientes(void* socket) {
 				sprintf(respuesta, "10/%s: %s", usuario_logueado, mensaje);
 
 				// Buscar la sala en la que está el usuario
-				int indiceSala = BuscarSalaPorSocket(&misSalas, sock_conn);
+				int indiceSala = BuscarSalaPorSocket(&ListaSalas, sock_conn);
 				if (indiceSala != -1) {
 					// Enviar el mensaje a todos los clientes de la sala correspondiente
-					Sala* sala = &misSalas.salas[indiceSala];
-					for (int i = 0; i < sala->numSockets; i++) {
-						if (sala->sockets[i] != sock_conn) {	
+					Sala* sala = &ListaSalas.salas[indiceSala];
+					for (int i = 0; i < sala->numSockets; i++) 
+					{
+						if (sala->sockets[i] != sock_conn) 
+						{
 							printf("Enviando mensaje a socket %d: %s\n", sala->sockets[i], respuesta);
 							write(sala->sockets[i], respuesta, strlen(respuesta));
 						}
 					}
 				}
-				else {
+				else 
+				{
 					printf("Error: No se encontró la sala para el socket %d\n", sock_conn);
 					sprintf(respuesta, "10/Error al enviar el mensaje: sala no encontrada");
 					write(sock_conn, respuesta, strlen(respuesta));
 				}
 			}
 		}
-		
-		if (codigo != 0 || codigo!= 7 || codigo!= 8 || codigo!= 10)
+	
+		if (codigo != 0 && codigo!= 7 && codigo!= 8 )
 		{
 			printf("Respuesta: %s\n", respuesta);
 			// Enviamos la respuesta
@@ -491,7 +498,7 @@ void* AtenderClientes(void* socket) {
 		{
 			//Notificamos a los clientes
 			char notificacion[20];
-			DameConectados(&miLista, conectados);
+			DameConectados(&ListaContectados, conectados);
 			sprintf(notificacion, "6/%s", conectados);
 			int j;
 			for (j = 0; j < i; j++)
@@ -503,7 +510,7 @@ void* AtenderClientes(void* socket) {
 	{
 		pthread_mutex_lock(&mutex); //No interrumpir el thread 
 		// Elimina el cliente de la lista de conectados
-		if (EliminaConectado(&miLista, usuario_logueado) == -1)
+		if (EliminaConectado(&ListaContectados, usuario_logueado) == -1)
 		{
 			printf("No se encontró al cliente %s en la lista de conectados\n", usuario_logueado);
 		}
@@ -512,7 +519,7 @@ void* AtenderClientes(void* socket) {
 			printf("El cliente %s ha sido eliminado de la lista de conectados\n", usuario_logueado);
 			//Notificamos a los clientes
 			char notificacion[20];
-			DameConectados(&miLista, conectados);
+			DameConectados(&ListaContectados, conectados);
 			sprintf(notificacion, "6/%s", conectados);
 			int j;
 			for (j = 0; j < i; j++)
@@ -553,8 +560,8 @@ int main(int argc, char *argv[])
 	if (listen(sock_listen, 4) < 0)
 		printf("Error en el Listen");
 
-	miLista.num = 0;
-	misSalas.num = 0; //Inicializamos el numero de sockets en la sala
+	ListaContectados.num = 0;
+	ListaSalas.num = 0; //Inicializamos el numero de sockets en la sala
 	pthread_t thread;
 
 	//bucle infinito

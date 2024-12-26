@@ -135,3 +135,4 @@ C:\Users\swaga\Documents\GitHub\SO_Casino_AMI\clienteCasino_AMI\WindowsFormsAppl
 C:\Users\swaga\Documents\GitHub\SO_Casino_AMI\clienteCasino_AMI\WindowsFormsApplication1\obj\Debug\clienteForm.csproj.CoreCompileInputs.cache
 C:\Users\swaga\Documents\GitHub\SO_Casino_AMI\clienteCasino_AMI\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.exe
 C:\Users\swaga\Documents\GitHub\SO_Casino_AMI\clienteCasino_AMI\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.pdb
+C:\Users\swaga\Documents\GitHub\SO_Casino_AMI\clienteCasino_AMI\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.FormChat.resources

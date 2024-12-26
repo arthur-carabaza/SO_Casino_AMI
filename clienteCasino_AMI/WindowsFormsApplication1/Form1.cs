@@ -29,12 +29,14 @@ namespace WindowsFormsApplication1
             NombrePartida.Text = nombre;
         }
 
-
-        private void EscribirEnChatbox(string mensaje)
+        private void AbrirChat(string salaID)
         {
-            Chatbox.AppendText(mensaje + Environment.NewLine);
+            FormChat chatform = new FormChat(server, salaID,nombreTextBox.Text);
+            chatform.Show();
         }
 
+
+    
         private void ActualizarListaConectados(string mensaje)
         {
             ListaConectados.Text = mensaje;
@@ -122,6 +124,7 @@ namespace WindowsFormsApplication1
                             // Enviamos al servidor la respuesta de la invitacion
                             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensg);
                             server.Send(msg);
+                            AbrirChat("SALA_ID");
                         }
                         else
                         {
@@ -136,6 +139,7 @@ namespace WindowsFormsApplication1
                         if(mensaje == "SI")
                         {
                             MessageBox.Show("Su invitación ha sido aceptada");
+                            AbrirChat("ID_SALA");
                         }
                         else
                         {
@@ -143,6 +147,7 @@ namespace WindowsFormsApplication1
                             if (result == DialogResult.Yes)
                             {
                                 MessageBox.Show("La partida se iniciará");
+                                AbrirChat("ID_SALA");
                             }
                             else
                             {
@@ -156,8 +161,13 @@ namespace WindowsFormsApplication1
                         this.Invoke(new DelegadoParaMostrarMensaje(MostrarMensaje), new object[] { mensaje }); 
                         break;
 
-                    case 10: //Mensaje de chat
-                        this.Invoke(new DelegadoParaEscribir(EscribirEnChatbox), new object[] { mensaje }); 
+                    case 10: // Mensaje de chat recibido
+                        string mensajeChat = trozos[1]; // Mensaje
+                        Console.WriteLine("Mensaje Recibido: " + mensajeChat);
+                        if (Application.OpenForms["FormChat"] is FormChat chatForm)
+                        {
+                            chatForm.Invoke(new Action(() => chatForm.EscribirMensaje(mensajeChat)));
+                        }
                         break;
                 }
             }
@@ -290,20 +300,6 @@ namespace WindowsFormsApplication1
             }
 
             InvitarBox.Text = null;
-        }
-
-        private void EnviarMensaje_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(MensajeChat.Text)) { 
-                MessageBox.Show("Escriba un mensaje antes de enviarlo");
-            }
-            else
-            {
-                string mensaje = "10/" + nombreTextBox.Text + "/" + MensajeChat.Text; 
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje); 
-                server.Send(msg); 
-                MensajeChat.Text = ""; // Limpiar el campo de texto después de enviar el mensaje
-            }
         }
     }
 }
