@@ -13,16 +13,18 @@ namespace WindowsFormsApplication1
 {
     public partial class FormChat : Form
     {
-        private Socket server;
-        private string salaID;
-        private string username;
-        public FormChat(Socket server, string salaID, string username)
+        Socket server;
+        string username;
+        int cont;
+        public FormChat(Socket server, string username, int cont)
         {
             InitializeComponent();
             this.server = server;
-            this.salaID = salaID;
+            this.cont = cont;
             this.username = username;
         }
+
+        
 
         private void txtMensaje_TextChanged(object sender, EventArgs e)
         {
@@ -38,7 +40,7 @@ namespace WindowsFormsApplication1
         {
             if (!string.IsNullOrWhiteSpace(txtMensaje.Text))
             {
-                string mensaje = "10/" + username + "/" + txtMensaje.Text;
+                string mensaje = "10/" + cont + "/" + username + "/" + txtMensaje.Text;
                 byte[] msg = Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
 
@@ -49,6 +51,11 @@ namespace WindowsFormsApplication1
             {
                 MessageBox.Show("Escriba un mensaje antes de enviarlo");
             }
+        }
+
+        private void FormChat_Load(object sender, EventArgs e)
+        {
+            txtnumForms.Text = cont.ToString();
         }
     }
 }

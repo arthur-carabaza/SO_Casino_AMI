@@ -24,19 +24,23 @@ namespace WindowsFormsApplication1
         delegate void DelegadoParaMostrarMensaje(string mensaje);
         delegate void DelegadoParaActualizarNombrePartida(string nombre);
 
+        List<FormChat> formularios = new List<FormChat> ();
+
+
         private void ActualizarNombrePartida(string nombre)
         {
             NombrePartida.Text = nombre;
         }
 
-        private void AbrirChat(string salaID)
+        private void AbrirChat()
         {
-            FormChat chatform = new FormChat(server, salaID,nombreTextBox.Text);
-            chatform.Show();
+            int cont = formularios.Count;
+            FormChat chatform = new FormChat(server,nombreTextBox.Text,cont);
+            formularios.Add(chatform);
+            chatform.ShowDialog();
+            
         }
 
-
-    
         private void ActualizarListaConectados(string mensaje)
         {
             ListaConectados.Text = mensaje;
@@ -81,42 +85,58 @@ namespace WindowsFormsApplication1
                 int bytesRecibidos = server.Receive(msg2); 
                 string mensajeCompleto = Encoding.ASCII.GetString(msg2, 0, bytesRecibidos); 
                 string[] trozos = mensajeCompleto.Split('/');
-                int codigo = Convert.ToInt32(trozos[0]); 
-                string mensaje = trozos.Length > 1 ? trozos[1].Split('\0')[0] : string.Empty; 
+                int codigo = Convert.ToInt32(trozos[0]);
+                string mensaje; 
                 string nombre = nombreTextBox.Text;
+
+                //Nombre del formulario al que va destinado la respuesta
+                int numforms;
 
 
                 switch (codigo)
                 {
-                    case 1: //Respuesta a iniciar sesión
+                    case 1: //Respuesta a iniciar sesión ; Se encarga el formulario principal 
+
+                        //Aqui obtenemos el numero al cual va dirigido la respuesta
+                        numforms = Convert.ToInt32(trozos[1]);
+                        mensaje = trozos[2].Split('\0')[0];
+
                         this.Invoke(new DelegadoParaMostrarMensaje(MostrarMensaje), new object[] { mensaje });
                         this.Invoke(new DelegadoParaActualizarNombrePartida(ActualizarNombrePartida), new object[] { nombre });
                     break;
 
 
-                    case 2: //Respuesta a registro
+                    case 2: //Respuesta a registro ; Se encarga el formulario principal 
+
+                        //Aqui obtenemos el numero al cual va dirigido la respuesta
+                        numforms = Convert.ToInt32(trozos[1]);
+                        mensaje = trozos[2].Split('\0')[0];
+
                         MessageBox.Show(mensaje);
                         break;
 
                     case 3: //respuesta a query de cuanto dinero
-                        MessageBox.Show(mensaje);
+                        MessageBox.Show(nombre);
                         break;
 
                     case 4: //respuesta a query cuantas visctoria 
-                        MessageBox.Show(mensaje);
+                        MessageBox.Show(nombre);
                         break;
 
                     case 5: //Respuesta a query cuantas victorias 
-                        MessageBox.Show(mensaje);
+                        MessageBox.Show(nombre);
                         break;
 
                     case 6: //Notificacion de conectados
 
+                        //NO SE SI PONER AQUI LO DEL CODIGO, SE SUPONE QUE NO HAY QUE PONERLO
+                        mensaje = trozos[1].Split('\0')[0];
                         this.Invoke(new DelegadoParaActualizarLista(ActualizarListaConectados), new object[] { mensaje }); 
                         break;
 
                     case 7: //Notificacion de invitacion
 
+                        mensaje = trozos[1].Split('\0')[0];
                         DialogResult RespuestaInv = MessageBox.Show(mensaje + "le han invitado a una partida.\n Quiere unirse?", "Respuesta invitacion", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (RespuestaInv == DialogResult.Yes)
                         {
@@ -124,7 +144,11 @@ namespace WindowsFormsApplication1
                             // Enviamos al servidor la respuesta de la invitacion
                             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensg);
                             server.Send(msg);
-                            AbrirChat("SALA_ID");
+
+                            //CREAMOS THREAD PARA OCUPARSE DE ESTE FORMS
+                            ThreadStart ts = delegate { AbrirChat(); };
+                            Thread chatT = new Thread(ts);
+                            chatT.Start();
                         }
                         else
                         {
@@ -136,10 +160,16 @@ namespace WindowsFormsApplication1
                         break;
 
                     case 8:
-                        if(mensaje == "SI")
+
+                        mensaje = trozos[1].Split('\0')[0];
+                        if (mensaje == "SI")
                         {
                             MessageBox.Show("Su invitación ha sido aceptada");
-                            AbrirChat("ID_SALA");
+
+                            //CREAMOS THREAD PARA OCUPARSE DE ESTE FORMS
+                            ThreadStart ts = delegate { AbrirChat(); };
+                            Thread chatT = new Thread(ts);
+                            chatT.Start();
                         }
                         else
                         {
@@ -147,7 +177,11 @@ namespace WindowsFormsApplication1
                             if (result == DialogResult.Yes)
                             {
                                 MessageBox.Show("La partida se iniciará");
-                                AbrirChat("ID_SALA");
+
+                                //CREAMOS THREAD PARA OCUPARSE DE ESTE FORMS
+                                ThreadStart ts = delegate { AbrirChat(); };
+                                Thread chatT = new Thread(ts);
+                                chatT.Start();
                             }
                             else
                             {
@@ -158,27 +192,32 @@ namespace WindowsFormsApplication1
                         break;
 
                     case 9:  //Manejar mensajes de creacion de partidas en general 
+                        mensaje = trozos[1].Split('\0')[0];
                         this.Invoke(new DelegadoParaMostrarMensaje(MostrarMensaje), new object[] { mensaje }); 
                         break;
 
-                    case 10: // Mensaje de chat recibido
-                        string mensajeChat = trozos[1]; // Mensaje
-                        Console.WriteLine("Mensaje Recibido: " + mensajeChat);
-                        if (Application.OpenForms["FormChat"] is FormChat chatForm)
-                        {
-                            chatForm.Invoke(new Action(() => chatForm.EscribirMensaje(mensajeChat)));
-                        }
-                        break;
+                    case 10: // Mensaje de chat recibido ; SE ENCARGAN FORMS SECUNDARIOS
+                        //Aqui obtenemos el numero al cual va dirigido la respuesta
+                        numforms = Convert.ToInt32(trozos[1]);
+                        mensaje = trozos[2].Split('\0')[0];
+
+                        trozos = mensaje.Split('/');
+                        numforms = Convert.ToInt32(trozos[0]);
+                        mensaje = trozos[1];
+
+                        formularios[numforms].EscribirMensaje(mensaje);
+
+                    
+                        break;                
                 }
             }
         }
-
         private void conectar_Click(object sender, EventArgs e)
         {
             //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
             //al que deseamos conectarnos
             IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 50000);
+            IPEndPoint ipep = new IPEndPoint(direc, 50001);
 
 
             //Creamos el socket 
@@ -300,6 +339,29 @@ namespace WindowsFormsApplication1
             }
 
             InvitarBox.Text = null;
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            //Mensaje de desconexion
+            string mensaje = "0/";
+
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+
+            //Nos deconectamos
+            conectado = false;
+            atender.Abort();
+            this.Invalidate(new Rectangle(20, 20, 40, 40)); //Redibujar el formulario para actualizar el circulo
+            this.Update();
+
+            ListaConectados.Text = null;
+            NombrePartida.Text = null;
+            nombreTextBox.Text = null;
+            Password.Text = null;
+
+            server.Shutdown(SocketShutdown.Both);
+            server.Close();
         }
     }
 }

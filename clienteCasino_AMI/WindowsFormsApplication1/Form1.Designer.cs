@@ -276,6 +276,7 @@ namespace WindowsFormsApplication1
             this.Controls.Add(this.desconectar);
             this.Name = "Form1";
             this.Text = "Poker Game Client";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();

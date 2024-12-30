@@ -14,7 +14,7 @@
 //Estructura necesaria para el acceso excluyente
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-//Definimos estructuras i funciones para trabajar con la lista de conectados
+//DEFINICION DE ESTRUCURAS Conectado, LConectados, Salas, LSalas
 typedef struct {
 	char nombre[20];
 	int socket;
@@ -42,7 +42,7 @@ typedef struct {
 }ListaSala;
 
 
-//Lista de conectados que se inicializa con 0 conectados
+//INICIALIZAMOS LISTAS DE CONECTADOS I SALAS
 ListaConectados ListaContectados;
 ListaSala ListaSalas;
 char conectados[300];
@@ -51,7 +51,11 @@ int sockets[100];
 Mensaje chatMensajes[100];
 int chatIndex = 0; //Indice del mensaje actual 
 
+
+//METODOS GENERALES PARA EL CODIGO Poner,Quitar,Dar Conectados, buscar sockets etc...
 int BuscarSalaPorSocket(ListaSala *listaSalas, int socket) {
+	//Devuelve el indice de la sala en la que se encuentra el usuario cuyo socket se pasa como parametro
+	//Devuelve -1 si no encuentra la sala
 	for (int i = 0; i < listaSalas->num; i++) {
 		for (int j = 0; j < listaSalas->salas[i].numSockets; j++) {
 			if (listaSalas->salas[i].sockets[j] == socket) {
@@ -144,6 +148,8 @@ void DameConectados(ListaConectados* lista, char conectados[300]) {
 
 }
 
+
+//FUNCION ATENDER CLIENTES
 void* AtenderClientes(void* socket) 
 {
 	int sock_conn;
@@ -198,15 +204,24 @@ void* AtenderClientes(void* socket)
 
 		printf("La petición es: %s\n", peticion);
 
+		//Obtenemos el codigo de peticion
 		char* p = strtok(peticion, "/");
 		int codigo = atoi(p);
-		//Ya tenemos codigo de peticion
+
+		//Variable para guardar el codigo del servidor
+		int numForms;
+		
 		char nombre[20];
 		char password[20];
 		char nombreInvitado[20];
 
+		//LAS PETICIONES 0 y 6 NO NECESTAN EL NOMBRE PARA FUNCIONAR
 		if ((codigo != 0)&&(codigo !=6))
 		{
+			p = strtok(NULL, "/");
+			numForms = atoi(p);
+
+			//Obtenemos el nombre 
 			p = strtok(NULL, "/");
 			strcpy(nombre, p);
 			printf("Codigo: %d, Nombre: %s\n", codigo, nombre);
@@ -214,7 +229,8 @@ void* AtenderClientes(void* socket)
 		if (codigo == 0)
 			terminar = 1;
 
-		else if (codigo == 1) //piden iniciar session
+		//USUARIO INICIA SESSION 1/0/nombre/contraseña
+		else if (codigo == 1) 
 		{
 			p = strtok(NULL, "/");
 			strcpy(password, p);
@@ -227,7 +243,7 @@ void* AtenderClientes(void* socket)
 			if (err != 0)
 			{
 				printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
-				sprintf(respuesta, "1/Error en la base de datos");
+				sprintf(respuesta, "1/%d/Error en la base de datos",numForms);
 			}
 			else
 			{
@@ -235,13 +251,13 @@ void* AtenderClientes(void* socket)
 				row = mysql_fetch_row(res);
 				if (row == NULL)
 				{
-					sprintf(respuesta, "1/El usuario no existe");
+					sprintf(respuesta, "1/%d/El usuario no existe",numForms);
 				}
 				else
 				{
 					if (strcmp(row[0], password) == 0)
 					{
-						sprintf(respuesta, "1/Inicio de sesión correcto");
+						sprintf(respuesta, "1/%d/Inicio de sesión correcto",numForms);
 						strcpy(usuario_logueado, nombre);
 						session_iniciada = 1;
 
@@ -259,7 +275,7 @@ void* AtenderClientes(void* socket)
 					}
 					else
 					{
-						sprintf(respuesta, "1/Contraseña incorrecta");
+						sprintf(respuesta, "1/%d/Contraseña incorrecta",numForms);
 					}
 				}
 				mysql_free_result(res);
@@ -267,7 +283,8 @@ void* AtenderClientes(void* socket)
 			}
 		}
 
-		else if (codigo == 2) //Quieren registrarse 
+		//USUARIO SE REGISTRA 2/numForms/nombre/contraseña
+		else if (codigo == 2)  
 		{
 			p = strtok(NULL, "/");
 			strcpy(password, p);
@@ -279,19 +296,20 @@ void* AtenderClientes(void* socket)
 			err = mysql_query(conn, query);
 			if (err != 0) {
 				if (mysql_errno(conn) == 1062) {  // Código de error para duplicados
-					sprintf(respuesta, "2/El nombre de usuario ya existe");
+					sprintf(respuesta, "2/%d/El nombre de usuario ya existe",numForms);
 				}
 				else {
 					printf("Error al insertar en la base de datos: %s\n", mysql_error(conn));
-					sprintf(respuesta, "2/Error al registrarse");
+					sprintf(respuesta, "2/%d/Error al registrarse",numForms);
 				}
 			}
 			else
 			{
-				sprintf(respuesta, "2/Registro exitoso");
+				sprintf(respuesta, "2/%d/Registro exitoso");
 			}
 		}
 
+		//QUERIS DE SQL 
 		else if (codigo == 3 || codigo == 4 || codigo == 5)
 		{
 			if (session_iniciada == 0) {
@@ -386,11 +404,12 @@ void* AtenderClientes(void* socket)
 			}
 		}
 		
+		//INVITACION A PARTIDAS 7/ y acceptar/rechazar partidas 8/
 		else if (codigo ==7 || codigo ==8)
 		{
 			if (session_iniciada == 0) 
 			{
-				sprintf(respuesta, "9/Debes iniciar session primero");
+				sprintf(respuesta, "9/%d/Debes iniciar session primero",numForms);
 			}
 			else 
 			{
@@ -401,17 +420,17 @@ void* AtenderClientes(void* socket)
 					pthread_mutex_unlock(&mutex);
 			
 					if (socketInvitado != -1) {
-						sprintf(respuesta, "9/Invitacion enviada");
+						sprintf(respuesta, "9/%d/Invitacion enviada",numForms);
 				
-						sprintf(respuestaINV, "7/%s",usuario_logueado);
+						sprintf(respuestaINV, "7/%d/%s", numForms, usuario_logueado);
 						write(socketInvitado,respuestaINV,strlen(respuestaINV));
 					} 
 					else {
-						sprintf(respuesta, "9/No se encontro el usuario");
+						sprintf(respuesta, "9/%d/No se encontro el usuario", numForms);
 					}
 				}
 				
-				else if (codigo == 8) { // El cliente responde a la invitaciÃ³n 
+				else if (codigo == 8) { // El cliente responde a la invitacion 
 					pthread_mutex_lock(&mutex); 
 					int socketInvitador = BuscaSocketPorNombre(&ListaContectados, nombre); // Buscar socket del cliente invitador 
 					pthread_mutex_unlock(&mutex); 
@@ -419,7 +438,7 @@ void* AtenderClientes(void* socket)
 					if (socketInvitador != -1) { 
 						char respuestaBool[20]; 
 						p = strtok(NULL, "/"); 
-						sprintf(respuestaBool, "8/%s", p); 
+						sprintf(respuestaBool, "8/%d/%s", numForms, p); 
 						printf("Respuesta: %s\n", respuestaBool); 
 						
 						write(socketInvitador, respuestaBool, strlen(respuestaBool)); 
@@ -431,28 +450,28 @@ void* AtenderClientes(void* socket)
 							nuevaSala.sockets[1] = socketInvitador; 
 							if (PonSala(&ListaSalas, nuevaSala) != -1) { 
 								printf("Sala creada y añadida a la lista\n"); 
-								sprintf(respuesta, "9/Partida creada"); 
+								sprintf(respuesta, "9/%d/Partida creada", numForms); 
 							} 
 							else { 
 								printf("Error: Lista de salas llena\n"); 
-								sprintf(respuesta, "9/Error al crear la sala");
+								sprintf(respuesta, "9/%d/Error al crear la sala", numForms);
 							}
 						}
 						else if (strcmp(respuestaBool, "8/NO") == 0) { 
-							sprintf(respuesta, "9/Invitacion rechazada"); 
+							sprintf(respuesta, "9/%d/Invitacion rechazada",numForms); 
 						} 
 					} 
 					else { 
-						sprintf(respuesta, "9/No se encuentra al usuario invitador"); 
+						sprintf(respuesta, "9/%d/No se encuentra al usuario invitador", numForms); 
 					} 
 				}
 			}
 		}
 		
-		else if (codigo == 10) { // Enviar mensaje de chat
+		else if (codigo == 10) { 
 			if (session_iniciada == 0) 
 			{
-				sprintf(respuesta, "10/Debes iniciar sesión primero");
+				sprintf(respuesta, "10/%d/Debes iniciar sesión primero",numForms);
 			}
 			else 
 			{
@@ -462,15 +481,18 @@ void* AtenderClientes(void* socket)
 				strcpy(mensaje, p);
 
 				// Formatear el mensaje para enviar a todos los clientes de la sala
-				sprintf(respuesta, "10/%s: %s", usuario_logueado, mensaje);
+				sprintf(respuesta, "10/%d/%s: %s", usuario_logueado, mensaje,numForms);
 
 				// Buscar la sala en la que está el usuario
 				int indiceSala = BuscarSalaPorSocket(&ListaSalas, sock_conn);
+				printf("%d\n",sock_conn);
+				printf("%d\n",indiceSala);
 				if (indiceSala != -1) {
 					// Enviar el mensaje a todos los clientes de la sala correspondiente
 					Sala* sala = &ListaSalas.salas[indiceSala];
 					for (int i = 0; i < sala->numSockets; i++) 
 					{
+						printf("%d",sala->sockets[i]);
 						if (sala->sockets[i] != sock_conn) 
 						{
 							printf("Enviando mensaje a socket %d: %s\n", sala->sockets[i], respuesta);
@@ -481,7 +503,7 @@ void* AtenderClientes(void* socket)
 				else 
 				{
 					printf("Error: No se encontró la sala para el socket %d\n", sock_conn);
-					sprintf(respuesta, "10/Error al enviar el mensaje: sala no encontrada");
+					sprintf(respuesta, "10/%d/Error al enviar el mensaje: sala no encontrada",numForms);
 					write(sock_conn, respuesta, strlen(respuesta));
 				}
 			}
@@ -499,12 +521,13 @@ void* AtenderClientes(void* socket)
 			//Notificamos a los clientes
 			char notificacion[20];
 			DameConectados(&ListaContectados, conectados);
-			sprintf(notificacion, "6/%s", conectados);
+			sprintf(notificacion, "6/%d/%s", numForms, conectados);
 			int j;
 			for (j = 0; j < i; j++)
 				write(sockets[j], notificacion, strlen(notificacion));
 		}
 	}
+	
 
 	if (session_iniciada)
 	{
@@ -552,7 +575,7 @@ int main(int argc, char *argv[])
 	//htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	// escucharemos en el port 50000
-	serv_adr.sin_port = htons(50000);
+	serv_adr.sin_port = htons(50001);
 
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
