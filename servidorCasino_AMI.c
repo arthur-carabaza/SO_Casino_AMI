@@ -88,6 +88,7 @@ int PonSala(ListaSala *lista, Sala nuevaSala) {
 		lista->salas[lista->num] = nuevaSala;
 		lista->num++;
 		int num = lista->num;
+		printf("Estas creando una sala de id %d",num);
 		return num;
 	}
 }
@@ -494,12 +495,12 @@ void* AtenderClientes(void* socket)
 				// Buscar la sala en la que está el usuario
 				int indiceSala = BuscarSalaPorSocket(&ListaSalas, sock_conn);
 				printf("%d\n",sock_conn);
-				printf("%d\n",indiceSala);
+				printf("%d\n",numForms);
 				// Formatear el mensaje para enviar a todos los clientes de la sala
-				sprintf(respuesta, "10/%d/%s: %s", usuario_logueado, mensaje,indiceSala);
-				if (indiceSala != -1) {
+				sprintf(respuesta, "10/%d/%s: %s",numForms, usuario_logueado, mensaje);
+				if (numForms-1 != -1) {
 					// Enviar el mensaje a todos los clientes de la sala correspondiente
-					Sala* sala = &ListaSalas.salas[indiceSala];
+					Sala* sala = &ListaSalas.salas[numForms-1];
 					for (int i = 0; i < sala->numSockets; i++) 
 					{
 						printf("%d",sala->sockets[i]);
@@ -519,7 +520,7 @@ void* AtenderClientes(void* socket)
 			}
 		}
 	
-		if (codigo != 0 && codigo!= 7 && codigo!= 8 )
+		if (codigo != 0 && codigo!= 7 && codigo!= 8 && codigo !=10)
 		{
 			printf("Respuesta: %s\n", respuesta);
 			// Enviamos la respuesta
@@ -585,7 +586,7 @@ int main(int argc, char *argv[])
 	//htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	// escucharemos en el port 50000
-	serv_adr.sin_port = htons(50000);
+	serv_adr.sin_port = htons(50002);
 
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");

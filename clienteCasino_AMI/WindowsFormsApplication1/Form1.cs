@@ -33,12 +33,39 @@ namespace WindowsFormsApplication1
             NombrePartida.Text = nombre;
         }
 
+        private int DameFormsPorID (int ID)
+        {
+            //ESTa FUNCION DEVULVE lA POSICION EN EL CUAL ESTA EL VECTOR DANDO SU ID DE SALA
+            int i=0;
+            int numforms = 0;
+            while (i < IDSalas.Length)
+            {
+                if (ID == IDSalas[i])
+                {
+                    i = IDSalas.Length;
+
+                }
+                else
+                {
+                    numforms++;
+                }
+
+                if (numforms > IDSalas.Length)
+                {
+                    MessageBox.Show("Error");
+                    break;
+                }
+                i++;
+            }
+            return numforms;
+        }
+
         private void AbrirChat(int ID)
         {
             int cont = formularios.Count;
-            FormChat chatform = new FormChat(server,nombreTextBox.Text,cont);
+            FormChat chatform = new FormChat(server,nombreTextBox.Text,ID);
             formularios.Add(chatform);
-            IDSalas.Append(ID);
+            IDSalas[cont] = (ID);
             chatform.ShowDialog();
             
         }
@@ -197,27 +224,12 @@ namespace WindowsFormsApplication1
                         int IDsala = Convert.ToInt32(trozos[1]);
                         mensaje = trozos[2].Split('\0')[0];
                         int numforms = 0;
-                        int i = 0;
-                        while (i< IDSalas.Length)
-                        {
-                            if(IDsala==IDSalas[i])
-                            {
-                                i = IDSalas.Length;
-                            }
-                            else
-                            {
-                                numforms++;
-                            }
-                            if(numforms> IDSalas.Length)
-                            {
-                                MessageBox.Show("Error");
-                                break;
-                            }
-                        }
-                        trozos = mensaje.Split('/');
-                        mensaje = trozos[1];
 
-                        formularios[numforms].EscribirMensaje(mensaje);
+                        numforms = DameFormsPorID(IDsala);
+
+                        
+
+                        formularios[numforms].Recibir_Mensaje(mensaje);
                         break; 
                         
                     case 11:
@@ -236,7 +248,7 @@ namespace WindowsFormsApplication1
             //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
             //al que deseamos conectarnos
             IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 50000);
+            IPEndPoint ipep = new IPEndPoint(direc, 50002);
 
 
             //Creamos el socket 

@@ -15,12 +15,17 @@ namespace WindowsFormsApplication1
     {
         Socket server;
         string username;
-        int cont;
-        public FormChat(Socket server, string username, int cont)
+        int idS;
+
+        delegate void DelegadoParaEscribir(string mensaje);
+
+      
+
+        public FormChat(Socket server, string username, int idS)
         {
             InitializeComponent();
             this.server = server;
-            this.cont = cont;
+            this.idS = idS;
             this.username = username;
         }
 
@@ -30,8 +35,12 @@ namespace WindowsFormsApplication1
         {
 
         }
+        public void Recibir_Mensaje(string mensaje)
+        {
+            this.Invoke(new DelegadoParaEscribir(EscribirMensaje), new object[] { mensaje });
+        }
 
-        public void EscribirMensaje(string mensaje)
+        private void EscribirMensaje(string mensaje)
         {
             txtChat.AppendText(mensaje+Environment.NewLine);
         }
@@ -40,7 +49,7 @@ namespace WindowsFormsApplication1
         {
             if (!string.IsNullOrWhiteSpace(txtMensaje.Text))
             {
-                string mensaje = "10/" + cont + "/" + username + "/" + txtMensaje.Text;
+                string mensaje = "10/" + idS + "/" + username + "/" + txtMensaje.Text;
                 byte[] msg = Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
 
@@ -55,7 +64,8 @@ namespace WindowsFormsApplication1
 
         private void FormChat_Load(object sender, EventArgs e)
         {
-            txtnumForms.Text = cont.ToString();
+            txtnumForms.Text = idS.ToString();
+            txtname.Text = username.ToString(); 
         }
     }
 }

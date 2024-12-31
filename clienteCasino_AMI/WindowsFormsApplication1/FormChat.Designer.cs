@@ -32,6 +32,7 @@
             this.txtMensaje = new System.Windows.Forms.TextBox();
             this.btnEnviar = new System.Windows.Forms.Button();
             this.txtnumForms = new System.Windows.Forms.TextBox();
+            this.txtname = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // txtChat
@@ -69,12 +70,20 @@
             this.txtnumForms.Size = new System.Drawing.Size(43, 22);
             this.txtnumForms.TabIndex = 3;
             // 
+            // txtname
+            // 
+            this.txtname.Location = new System.Drawing.Point(474, 32);
+            this.txtname.Name = "txtname";
+            this.txtname.Size = new System.Drawing.Size(100, 22);
+            this.txtname.TabIndex = 4;
+            // 
             // FormChat
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.ClientSize = new System.Drawing.Size(1017, 476);
+            this.Controls.Add(this.txtname);
             this.Controls.Add(this.txtnumForms);
             this.Controls.Add(this.btnEnviar);
             this.Controls.Add(this.txtMensaje);
@@ -93,5 +102,6 @@
         private System.Windows.Forms.TextBox txtMensaje;
         private System.Windows.Forms.Button btnEnviar;
         private System.Windows.Forms.TextBox txtnumForms;
+        private System.Windows.Forms.TextBox txtname;
     }
 }
