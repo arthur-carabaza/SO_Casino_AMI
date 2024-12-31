@@ -448,9 +448,10 @@ void* AtenderClientes(void* socket)
 							int idS = PonSala(&ListaSalas, nuevaSala);
 							if ( idS != -1) { 
 								printf("Sala creada y añadida a la lista\n"); 
-								sprintf(respuesta, "9/%d/Partida creada", idS); 
+								sprintf(respuesta, "11/%d/Partida creada", idS); 
+								write (sock_conn, respuesta,strlen(respuesta));
 
-								sprintf(respuestaBool, "8/%d/%s", idS, p); 
+								sprintf(respuestaBool, "8/%s/%d", p, idS); 
 								printf("Respuesta: %s\n", respuestaBool); 
 								write(socketInvitador, respuestaBool, strlen(respuestaBool)); 
 							} 

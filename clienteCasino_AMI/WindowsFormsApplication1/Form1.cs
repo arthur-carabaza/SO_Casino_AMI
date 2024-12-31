@@ -25,7 +25,7 @@ namespace WindowsFormsApplication1
         delegate void DelegadoParaActualizarNombrePartida(string nombre);
 
         List<FormChat> formularios = new List<FormChat> ();
-        int[] IDSalas;
+        int[] IDSalas = new int[50];
 
 
         private void ActualizarNombrePartida(string nombre)
@@ -144,10 +144,7 @@ namespace WindowsFormsApplication1
                             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensg);
                             server.Send(msg);
 
-                            //CREAMOS THREAD PARA OCUPARSE DE ESTE FORMS
-                            ThreadStart ts = delegate { AbrirChat(Convert.ToInt32(trozos[1]));};
-                            Thread chatT = new Thread(ts);
-                            chatT.Start();
+                            
                         }
                         else
                         {
@@ -160,15 +157,15 @@ namespace WindowsFormsApplication1
 
                     case 8:
 
-                        mensaje = trozos[2].Split('\0')[0];
+                        mensaje = trozos[1].Split('\0')[0];
                         if (mensaje == "SI")
                         {
                             MessageBox.Show("Su invitación ha sido aceptada");
 
                             //CREAMOS THREAD PARA OCUPARSE DE ESTE FORMS
-                            ThreadStart ts = delegate { AbrirChat(Convert.ToInt32(trozos[1])); };
-                            Thread chatT = new Thread(ts);
-                            chatT.Start();
+                            ThreadStart TS1 = delegate { AbrirChat(Convert.ToInt32(trozos[2])); };
+                            Thread chatTs = new Thread(TS1);
+                            chatTs.Start();
                         }
                         else
                         {
@@ -221,9 +218,16 @@ namespace WindowsFormsApplication1
                         mensaje = trozos[1];
 
                         formularios[numforms].EscribirMensaje(mensaje);
+                        break; 
+                        
+                    case 11:
 
-                    
-                        break;                
+                        MessageBox.Show(trozos[2]);
+                        //CREAMOS THREAD PARA OCUPARSE DE ESTE FORMS
+                        ThreadStart ts = delegate { AbrirChat(Convert.ToInt32(trozos[1])); };
+                        Thread chatT = new Thread(ts);
+                        chatT.Start();
+                        break;
                 }
             }
         }
