@@ -19,6 +19,10 @@ namespace WindowsFormsApplication1
 
         bool conectado = false;
 
+        string invitadoActual = null; // Guarda el nombre del invitado actual
+        bool salaPreparada = false; // Indica si la sala está lista para iniciar
+        int idSala = -1;
+
         delegate void DelegadoParaEscribir(string mensaje);
         delegate void DelegadoParaActualizarLista(string mensaje);
         delegate void DelegadoParaMostrarMensaje(string mensaje);
@@ -43,12 +47,9 @@ namespace WindowsFormsApplication1
                 if (ID == IDSalas[i])
                 {
                     i = IDSalas.Length;
-
                 }
                 else
-                {
                     numforms++;
-                }
 
                 if (numforms > IDSalas.Length)
                 {
@@ -188,27 +189,25 @@ namespace WindowsFormsApplication1
                         if (mensaje == "SI")
                         {
                             MessageBox.Show("Su invitación ha sido aceptada");
-
-                            //CREAMOS THREAD PARA OCUPARSE DE ESTE FORMS
-                            ThreadStart TS1 = delegate { AbrirChat(Convert.ToInt32(trozos[2])); };
-                            Thread chatTs = new Thread(TS1);
-                            chatTs.Start();
+                            idSala = Convert.ToInt32(trozos[2]); // Guardar ID de sala
+                            salaPreparada = true; // Marcar sala como lista
                         }
                         else
                         {
-                            DialogResult result = MessageBox.Show("Su invitación ha sido rechazada, quiere iniciar igualmente la partida?","invitacion",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
+                            DialogResult result = MessageBox.Show("Su invitación ha sido rechazada, quiere poder iniciar igualmente la partida?","invitacion",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
                             if (result == DialogResult.Yes)
                             {
-                                //MessageBox.Show("La partida se iniciará");
+                                salaPreparada = true; //Marcar sala como preparada
+                                idSala = Convert.ToInt32(trozos[2]); // Guardar ID de sala
+                                labelInvitado.Text = "Invitado: Ninguno";
 
-                                //CREAMOS THREAD PARA OCUPARSE DE ESTE FORMS
-                                //ThreadStart ts = delegate { AbrirChat(); };
-                                //Thread chatT = new Thread(ts);
-                                //chatT.Start();
                             }
                             else
                             {
                                 MessageBox.Show("La partida de cancela");
+                                invitadoActual = null; // Resetear invitado
+                                labelInvitado.Text = "Invitado: Ninguno";
+                                botonInciarSala.Enabled = false; // Deshabilitar botón
                             }
 
                         }
@@ -234,9 +233,16 @@ namespace WindowsFormsApplication1
                         
                     case 11:
 
-                        MessageBox.Show(trozos[2]);
+                        //MessageBox.Show(trozos[2]);
                         //CREAMOS THREAD PARA OCUPARSE DE ESTE FORMS
-                        ThreadStart ts = delegate { AbrirChat(Convert.ToInt32(trozos[1])); };
+                        //ThreadStart ts = delegate { AbrirChat(Convert.ToInt32(trozos[1])); };
+                        //Thread chatT = new Thread(ts);
+                        //chatT.Start();
+                        break;
+
+                    case 12: // Mensaje para iniciar sala
+                        int salaID = Convert.ToInt32(trozos[1]);
+                        ThreadStart ts = delegate { AbrirChat(salaID); };
                         Thread chatT = new Thread(ts);
                         chatT.Start();
                         break;
@@ -248,7 +254,7 @@ namespace WindowsFormsApplication1
             //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
             //al que deseamos conectarnos
             IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 50002);
+            IPEndPoint ipep = new IPEndPoint(direc, 50010);
 
 
             //Creamos el socket 
@@ -363,10 +369,13 @@ namespace WindowsFormsApplication1
             }
             else
             {
-                string NombreInvitado = InvitarBox.Text;
-                string mensaje = "7/0/" + NombreInvitado;
+                invitadoActual = InvitarBox.Text;
+                labelInvitado.Text = "Invitado: " + invitadoActual;
+                string mensaje = "7/0/" + invitadoActual;
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
+
+                botonInciarSala.Enabled = true; //Habilitar boton para empezar la partida
             }
 
             InvitarBox.Text = null;
@@ -393,6 +402,25 @@ namespace WindowsFormsApplication1
 
             server.Shutdown(SocketShutdown.Both);
             server.Close();
+        }
+
+        private void botonInciarSala_Click(object sender, EventArgs e)
+        {
+            if (salaPreparada && idSala != -1)
+            {
+                // Enviar mensaje al servidor para iniciar la sala
+                string mensaje = "12/" + idSala;
+                byte[] msg = Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
+
+                botonInciarSala.Enabled = false; // Desactivar el botón
+                salaPreparada = false; // Resetear estado
+                labelInvitado.Text = "Invitado: Ninguno";
+            }
+            else
+            {
+                MessageBox.Show("La sala no está lista para iniciar.");
+            }
         }
     }
 }

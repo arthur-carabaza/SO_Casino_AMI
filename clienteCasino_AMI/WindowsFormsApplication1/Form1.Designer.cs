@@ -23,6 +23,8 @@ namespace WindowsFormsApplication1
             this.nombreTextBox = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.botonInciarSala = new System.Windows.Forms.Button();
+            this.labelInvitado = new System.Windows.Forms.Label();
             this.InvitarButton = new System.Windows.Forms.Button();
             this.InvitarBox = new System.Windows.Forms.TextBox();
             this.registrarse = new System.Windows.Forms.Button();
@@ -77,6 +79,8 @@ namespace WindowsFormsApplication1
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.Color.LightSlateGray;
+            this.groupBox1.Controls.Add(this.botonInciarSala);
+            this.groupBox1.Controls.Add(this.labelInvitado);
             this.groupBox1.Controls.Add(this.InvitarButton);
             this.groupBox1.Controls.Add(this.InvitarBox);
             this.groupBox1.Controls.Add(this.registrarse);
@@ -94,10 +98,38 @@ namespace WindowsFormsApplication1
             this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox1.Size = new System.Drawing.Size(747, 347);
+            this.groupBox1.Size = new System.Drawing.Size(833, 347);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Petición";
+            // 
+            // botonInciarSala
+            // 
+            this.botonInciarSala.BackColor = System.Drawing.Color.Firebrick;
+            this.botonInciarSala.Enabled = false;
+            this.botonInciarSala.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.botonInciarSala.ForeColor = System.Drawing.Color.White;
+            this.botonInciarSala.Location = new System.Drawing.Point(534, 270);
+            this.botonInciarSala.Margin = new System.Windows.Forms.Padding(4);
+            this.botonInciarSala.Name = "botonInciarSala";
+            this.botonInciarSala.Size = new System.Drawing.Size(147, 28);
+            this.botonInciarSala.TabIndex = 17;
+            this.botonInciarSala.Text = "Iniciar Sala";
+            this.botonInciarSala.UseVisualStyleBackColor = false;
+            this.botonInciarSala.Click += new System.EventHandler(this.botonInciarSala_Click);
+            // 
+            // labelInvitado
+            // 
+            this.labelInvitado.BackColor = System.Drawing.Color.White;
+            this.labelInvitado.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.labelInvitado.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelInvitado.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.labelInvitado.Location = new System.Drawing.Point(504, 217);
+            this.labelInvitado.Name = "labelInvitado";
+            this.labelInvitado.Size = new System.Drawing.Size(299, 40);
+            this.labelInvitado.TabIndex = 16;
+            this.labelInvitado.Text = "Invitado: Ninguno";
+            this.labelInvitado.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // InvitarButton
             // 
@@ -268,7 +300,7 @@ namespace WindowsFormsApplication1
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
-            this.ClientSize = new System.Drawing.Size(794, 614);
+            this.ClientSize = new System.Drawing.Size(1089, 616);
             this.Controls.Add(this.ListaConectados);
             this.Controls.Add(this.NombrePartida);
             this.Controls.Add(this.groupBox1);
@@ -303,5 +335,7 @@ namespace WindowsFormsApplication1
         private System.Windows.Forms.Label ListaConectados;
         private System.Windows.Forms.Button InvitarButton;
         private System.Windows.Forms.TextBox InvitarBox;
+        private System.Windows.Forms.Button botonInciarSala;
+        private System.Windows.Forms.Label labelInvitado;
     }
 }

@@ -179,7 +179,7 @@ void* AtenderClientes(void* socket)
 		exit(1);
 	}
 	
-	if (mysql_real_connect(conn, "localhost", "root", "mysql", "JuegoPoker", 0, NULL, 0) == NULL) 
+	if (mysql_real_connect(conn, "localhost", "root", "mysql", "JuegoChat", 0, NULL, 0) == NULL) 
 	{
 		printf("Error al inicializar la conexión con la base de datos: %u %s\n", mysql_errno(conn), mysql_error(conn));
 		mysql_close(conn);
@@ -216,9 +216,10 @@ void* AtenderClientes(void* socket)
 		char password[20];
 		char nombreInvitado[20];
 
-		//LAS PETICIONES 0 y 6 NO NECESTAN EL NOMBRE PARA FUNCIONAR
-		if ((codigo != 0)&&(codigo !=6))
+		//LAS PETICIONES 0,6 y 12 NO NECESTAN EL NOMBRE PARA FUNCIONAR
+		if ((codigo != 0)&&(codigo !=6)&&(codigo !=12))
 		{
+			//Obtenemos el IDsala
 			p = strtok(NULL, "/");
 			numForms = atoi(p);
 
@@ -449,12 +450,12 @@ void* AtenderClientes(void* socket)
 							int idS = PonSala(&ListaSalas, nuevaSala);
 							if ( idS != -1) { 
 								printf("Sala creada y añadida a la lista\n"); 
-								sprintf(respuesta, "11/%d/Partida creada", idS); 
-								write (sock_conn, respuesta,strlen(respuesta));
+								
+								sprintf(respuestaBool, "8/%s/%d", p, idS);
+								printf("Respuesta: %s\n", respuestaBool);
+								write(socketInvitador, respuestaBool, strlen(respuestaBool));
+								write(sock_conn, respuestaBool, strlen(respuestaBool)); // Envía también al creador de la sala.
 
-								sprintf(respuestaBool, "8/%s/%d", p, idS); 
-								printf("Respuesta: %s\n", respuestaBool); 
-								write(socketInvitador, respuestaBool, strlen(respuestaBool)); 
 							} 
 							else { 
 								printf("Error: Lista de salas llena\n"); 
@@ -519,8 +520,37 @@ void* AtenderClientes(void* socket)
 				}
 			}
 		}
+
+		else if (codigo == 12) { // Iniciar sala manualmente
+
+			//Obtenemos el IDsala
+			p = strtok(NULL, "/");
+			int idSala = atoi(p); // ID de la sala
+			printf("%d\n", idSala);
+			
+			int j = 1;
+			// Buscar la sala en la lista
+			if (j ==1) 
+			{
+				Sala* sala = &ListaSalas.salas[idSala];
+				printf("estoy entrando aqui");
+
+				// Notificar a todos los clientes de la sala
+				for (int i = 0; i < sala->numSockets; i++) {
+					sprintf(respuesta, "12/%d/Iniciar", idSala);
+					printf("Respuesta: %s\n", respuesta);
+					write(sala->sockets[i], respuesta, strlen(respuesta));
+				}
+			}
+			else {
+				sprintf(respuesta, "12/Error al iniciar la sala");
+				printf("Respuesta: %s\n", respuesta);
+				write(sock_conn, respuesta, strlen(respuesta));
+			}
+}
+
 	
-		if (codigo != 0 && codigo!= 7 && codigo!= 8 && codigo !=10)
+		if (codigo != 0 && codigo!= 7 && codigo!= 8 && codigo !=10 && codigo!=12)
 		{
 			printf("Respuesta: %s\n", respuesta);
 			// Enviamos la respuesta
@@ -586,7 +616,7 @@ int main(int argc, char *argv[])
 	//htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	// escucharemos en el port 50000
-	serv_adr.sin_port = htons(50002);
+	serv_adr.sin_port = htons(50010);
 
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
