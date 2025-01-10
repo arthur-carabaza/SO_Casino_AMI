@@ -532,22 +532,26 @@ void* AtenderClientes(void* socket)
 			// Buscar la sala en la lista
 			if (j ==1) 
 			{
-				Sala* sala = &ListaSalas.salas[idSala];
-				printf("estoy entrando aqui");
+				Sala* sala = &ListaSalas.salas[idSala-1];
+				printf("estoy entrando aqui\n");
+				printf("%d\n",sala->numSockets);
+				
 
 				// Notificar a todos los clientes de la sala
-				for (int i = 0; i < sala->numSockets; i++) {
+				for (int i = 0; i < sala->numSockets; i++) 
+				{
 					sprintf(respuesta, "12/%d/Iniciar", idSala);
 					printf("Respuesta: %s\n", respuesta);
 					write(sala->sockets[i], respuesta, strlen(respuesta));
 				}
 			}
-			else {
+			else 
+			{
 				sprintf(respuesta, "12/Error al iniciar la sala");
 				printf("Respuesta: %s\n", respuesta);
 				write(sock_conn, respuesta, strlen(respuesta));
 			}
-}
+		}
 
 	
 		if (codigo != 0 && codigo!= 7 && codigo!= 8 && codigo !=10 && codigo!=12)
@@ -616,7 +620,7 @@ int main(int argc, char *argv[])
 	//htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	// escucharemos en el port 50000
-	serv_adr.sin_port = htons(50010);
+	serv_adr.sin_port = htons(50001);
 
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
