@@ -142,8 +142,9 @@ namespace WindowsFormsApplication1
                         MessageBox.Show(mensaje);
                         break;
 
-                    case 3: //respuesta a query de cuanto dinero
-                        MessageBox.Show(nombre);
+                    case 3: //RESULTADO QUERRY CON QUIEN HE ESTADO EN PARTIDA: 3/Juan,Carlos,Miguel
+                        mensaje = trozos[1].Split('\0')[0];
+                        MessageBox.Show(mensaje);
                         break;
 
                     case 4: //respuesta a query cuantas visctoria 
@@ -311,7 +312,7 @@ namespace WindowsFormsApplication1
             else if (Victorias.Checked)
             {
                 //Quiere saber cuantas victoras tengo
-                string mensaje = "4/0/" + nombreTextBox.Text;
+                string mensaje = "4/0/" + nombreTextBox.Text + "/" + query.Text;
                 // Enviamos al servidor el nombre tecleado
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
@@ -319,7 +320,7 @@ namespace WindowsFormsApplication1
             else
             {
                 //Quiere saber que cartas tengo
-                string mensaje = "5/0/" + nombreTextBox.Text;
+                string mensaje = "5/0/" + nombreTextBox.Text + "/" + query.Text;
                 // Enviamos al servidor el nombre tecleado
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
