@@ -363,22 +363,34 @@ namespace WindowsFormsApplication1
 
         private void InvitarButton_Click(object sender, EventArgs e)
         {
-            if (InvitarBox.Text == null)
+            if (string.IsNullOrWhiteSpace(InvitarBox.Text))
             {
                 MessageBox.Show("Escriba un nombre de usuario que quiera invitar");
             }
             else
             {
-                invitadoActual = InvitarBox.Text;
-                labelInvitado.Text = "Invitado: " + invitadoActual;
-                string mensaje = "7/0/" + invitadoActual;
+                // Agregar el nombre del invitado a la lista
+                if (string.IsNullOrWhiteSpace(invitadoActual))
+                {
+                    invitadoActual = InvitarBox.Text;
+                }
+                else
+                {
+                    invitadoActual += ", " + InvitarBox.Text;
+                }
+
+                // Actualizar la etiqueta con los invitados actuales
+                labelInvitado.Text = "Invitados: " + invitadoActual;
+
+                // Enviar mensaje de invitación al servidor
+                string mensaje = "7/0/" + InvitarBox.Text;
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
 
-                botonInciarSala.Enabled = true; //Habilitar boton para empezar la partida
+                botonInciarSala.Enabled = true; // Habilitar el botón para empezar la partida
             }
 
-            InvitarBox.Text = null;
+            InvitarBox.Text = null; // Limpiar la caja de texto
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)

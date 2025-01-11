@@ -3,7 +3,7 @@
   "WorkspaceRootPath": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|c:\\users\\swaga\\documents\\github\\so_casino_ami\\clientecasino_ami\\windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|solutionrelative:windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -11,11 +11,11 @@
       "RelativeMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|solutionrelative:windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\servidorCasino_AMI.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\windowsformsapplication1\\formchat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|solutionrelative:windowsformsapplication1\\formchat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\servidorCasino_AMI.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\windowsformsapplication1\\formchat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
@@ -41,16 +41,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "servidorCasino_AMI.c",
               "DocumentMoniker": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\servidorCasino_AMI.c",
               "RelativeDocumentMoniker": "..\\servidorCasino_AMI.c",
               "ToolTip": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\servidorCasino_AMI.c",
               "RelativeToolTip": "..\\servidorCasino_AMI.c",
-              "ViewState": "AgIAAAgCAAAAAAAAAAAAABYCAAAtAAAAAAAAAA==",
+              "ViewState": "AgIAAJYAAAAAAAAAAAAAACwCAABKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-01-05T11:45:23.062Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-01-05T11:45:23.062Z"
             },
             {
               "$type": "Document",
@@ -78,13 +77,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "FormChat.cs",
               "DocumentMoniker": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\FormChat.cs",
               "RelativeDocumentMoniker": "WindowsFormsApplication1\\FormChat.cs",
               "ToolTip": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\FormChat.cs",
               "RelativeToolTip": "WindowsFormsApplication1\\FormChat.cs",
-              "ViewState": "AgIAAAoAAAAAAAAAAAAAAEcAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAAAB0AAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-26T15:30:36.318Z"
             },

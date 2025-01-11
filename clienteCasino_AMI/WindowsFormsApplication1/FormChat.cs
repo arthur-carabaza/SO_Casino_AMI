@@ -28,9 +28,6 @@ namespace WindowsFormsApplication1
             this.idS = idS;
             this.username = username;
         }
-
-        
-
         private void txtMensaje_TextChanged(object sender, EventArgs e)
         {
 

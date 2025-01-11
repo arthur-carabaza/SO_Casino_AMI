@@ -50,7 +50,7 @@ int i = 0;
 int sockets[100];
 Mensaje chatMensajes[100];
 int chatIndex = 0; //Indice del mensaje actual 
-
+int idSalaActual = -1;
 
 //METODOS GENERALES PARA EL CODIGO Poner,Quitar,Dar Conectados, buscar sockets etc...
 int BuscarSalaPorSocket(ListaSala *listaSalas, int socket) {
@@ -417,18 +417,33 @@ void* AtenderClientes(void* socket)
 			{
 				if (codigo == 7) 
 				{ // Peticion de invitacion
-					pthread_mutex_lock(&mutex);
-					int socketInvitado = BuscaSocketPorNombre(&ListaContectados, nombre); // Buscar socket del cliente al que queremos enviar la invitaciÃ³n 
-					pthread_mutex_unlock(&mutex);
-			
-					if (socketInvitado != -1) {
-						sprintf(respuesta, "9/Invitacion enviada");
 				
+					pthread_mutex_lock(&mutex);
+					int socketInvitado = BuscaSocketPorNombre(&ListaContectados, nombre);
+					pthread_mutex_unlock(&mutex);
+
+					if (socketInvitado != -1) {
+						sprintf(respuesta, "9/Invitación enviada a %s", nombre);
+						write(sock_conn, respuesta, strlen(respuesta));
+
+						if (idSalaActual == -1) { // Crear sala si no existe
+							Sala nuevaSala;
+							nuevaSala.numSockets = 0;
+							nuevaSala.sockets[nuevaSala.numSockets++] = sock_conn;
+							idSalaActual = PonSala(&ListaSalas, nuevaSala);
+						}
+
+						pthread_mutex_lock(&mutex);
+						Sala* salaActual = &ListaSalas.salas[idSalaActual];
+						salaActual->sockets[salaActual->numSockets++] = socketInvitado;
+						pthread_mutex_unlock(&mutex);
+
 						sprintf(respuestaINV, "7/%s", usuario_logueado);
-						write(socketInvitado,respuestaINV,strlen(respuestaINV));
-					} 
+						write(socketInvitado, respuestaINV, strlen(respuestaINV));
+					}
 					else {
-						sprintf(respuesta, "9/No se encontro el usuario");
+						sprintf(respuesta, "9/Usuario %s no encontrado", nombre);
+						write(sock_conn, respuesta, strlen(respuesta));
 					}
 				}
 				
@@ -442,25 +457,18 @@ void* AtenderClientes(void* socket)
 						p = strtok(NULL, "/"); 
 
 						
-						if (strcmp(p, "SI") == 0) { 
-							// Crear la sala y añadir los sockets 
-							Sala nuevaSala; nuevaSala.numSockets = 2;
-							nuevaSala.sockets[0] = sock_conn; 
-							nuevaSala.sockets[1] = socketInvitador; 
-							int idS = PonSala(&ListaSalas, nuevaSala);
-							if ( idS != -1) { 
-								printf("Sala creada y añadida a la lista\n"); 
-								
-								sprintf(respuestaBool, "8/%s/%d", p, idS);
-								printf("Respuesta: %s\n", respuestaBool);
+						
+						if (strcmp(p, "SI") == 0) {
+							Sala* salaActual = &ListaSalas.salas[idSalaActual-1];
+							if (salaActual->numSockets < MAX_CLIENTES) {
+								salaActual->sockets[salaActual->numSockets] = sock_conn;
+								salaActual->numSockets++;
+								sprintf(respuestaBool, "8/%s/%d", p, idSalaActual);
 								write(socketInvitador, respuestaBool, strlen(respuestaBool));
-								write(sock_conn, respuestaBool, strlen(respuestaBool)); // Envía también al creador de la sala.
-
-							} 
-							else { 
-								printf("Error: Lista de salas llena\n"); 
-								sprintf(respuesta, "9/Error al crear la sala");
-
+								write(sock_conn, respuestaBool, strlen(respuestaBool));
+							}
+							else {
+								sprintf(respuesta, "9/Sala llena");
 							}
 						}
 						else if (strcmp(respuestaBool, "8/NO") == 0) { 
@@ -523,19 +531,19 @@ void* AtenderClientes(void* socket)
 
 		else if (codigo == 12) { // Iniciar sala manualmente
 
+			
 			//Obtenemos el IDsala
 			p = strtok(NULL, "/");
 			int idSala = atoi(p); // ID de la sala
 			printf("%d\n", idSala);
-			
-			int j = 1;
+
 			// Buscar la sala en la lista
-			if (j ==1) 
+			if (idSala != -1) 
 			{
 				Sala* sala = &ListaSalas.salas[idSala-1];
 				printf("estoy entrando aqui\n");
 				printf("%d\n",sala->numSockets);
-				
+				idSalaActual =-1;
 
 				// Notificar a todos los clientes de la sala
 				for (int i = 0; i < sala->numSockets; i++) 
