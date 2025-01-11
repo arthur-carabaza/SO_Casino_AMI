@@ -246,6 +246,13 @@ namespace WindowsFormsApplication1
                         Thread chatT = new Thread(ts);
                         chatT.Start();
                         break;
+
+                    case 13:
+                        //Aqui obtenemos el numero al cual va dirigido la respuesta
+                        mensaje = trozos[1].Split('\0')[0];
+
+                        MessageBox.Show(mensaje);
+                        break;
                 }
             }
         }
@@ -433,6 +440,16 @@ namespace WindowsFormsApplication1
             {
                 MessageBox.Show("La sala no está lista para iniciar.");
             }
+        }
+
+        private void dardebaja_Click(object sender, EventArgs e)
+        {
+            //Quiere Darse de Baja
+            string mensaje = "13/0/" + nombreTextBox.Text; 
+            // Enviamos al servidor el nombre tecleado y la contraseña
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+
         }
     }
 }

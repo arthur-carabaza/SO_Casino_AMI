@@ -561,7 +561,30 @@ void* AtenderClientes(void* socket)
 			}
 		}
 
-	
+		// USUARIO SE DA DE BAJA 13/nombre
+		else if (codigo == 13)
+		{
+		
+			// Consulta para eliminar al jugador
+			char query[256];
+			sprintf(query, "DELETE FROM Jugadores WHERE usuario='%s'", nombre);
+
+			err = mysql_query(conn, query);
+			if (err != 0) {
+				if (mysql_errno(conn) == 0) { // Si no hay error específico pero no se eliminó
+					sprintf(respuesta, "13/El usuario no existe");
+				}
+				else {
+					printf("Error al eliminar de la base de datos: %s\\n", mysql_error(conn));
+					sprintf(respuesta, "13/Error al darse de baja");
+				}
+			}
+			else
+			{
+				sprintf(respuesta, "13/Baja exitosa");
+			}
+		}
+
 		if (codigo != 0 && codigo!= 7 && codigo!= 8 && codigo !=10 && codigo!=12)
 		{
 			printf("Respuesta: %s\n", respuesta);

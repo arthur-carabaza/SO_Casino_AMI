@@ -23,6 +23,7 @@ namespace WindowsFormsApplication1
             this.nombreTextBox = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.dardebaja = new System.Windows.Forms.Button();
             this.botonInciarSala = new System.Windows.Forms.Button();
             this.labelInvitado = new System.Windows.Forms.Label();
             this.InvitarButton = new System.Windows.Forms.Button();
@@ -79,6 +80,7 @@ namespace WindowsFormsApplication1
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.Color.LightSlateGray;
+            this.groupBox1.Controls.Add(this.dardebaja);
             this.groupBox1.Controls.Add(this.botonInciarSala);
             this.groupBox1.Controls.Add(this.labelInvitado);
             this.groupBox1.Controls.Add(this.InvitarButton);
@@ -102,6 +104,20 @@ namespace WindowsFormsApplication1
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Petición";
+            // 
+            // dardebaja
+            // 
+            this.dardebaja.BackColor = System.Drawing.Color.DimGray;
+            this.dardebaja.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.dardebaja.ForeColor = System.Drawing.Color.White;
+            this.dardebaja.Location = new System.Drawing.Point(301, 135);
+            this.dardebaja.Margin = new System.Windows.Forms.Padding(4);
+            this.dardebaja.Name = "dardebaja";
+            this.dardebaja.Size = new System.Drawing.Size(138, 28);
+            this.dardebaja.TabIndex = 18;
+            this.dardebaja.Text = "Darse de Baja";
+            this.dardebaja.UseVisualStyleBackColor = false;
+            this.dardebaja.Click += new System.EventHandler(this.dardebaja_Click);
             // 
             // botonInciarSala
             // 
@@ -159,7 +175,7 @@ namespace WindowsFormsApplication1
             this.registrarse.BackColor = System.Drawing.Color.DimGray;
             this.registrarse.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.registrarse.ForeColor = System.Drawing.Color.White;
-            this.registrarse.Location = new System.Drawing.Point(198, 135);
+            this.registrarse.Location = new System.Drawing.Point(155, 135);
             this.registrarse.Margin = new System.Windows.Forms.Padding(4);
             this.registrarse.Name = "registrarse";
             this.registrarse.Size = new System.Drawing.Size(138, 28);
@@ -173,7 +189,7 @@ namespace WindowsFormsApplication1
             this.login.BackColor = System.Drawing.Color.DimGray;
             this.login.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.login.ForeColor = System.Drawing.Color.White;
-            this.login.Location = new System.Drawing.Point(37, 135);
+            this.login.Location = new System.Drawing.Point(8, 135);
             this.login.Margin = new System.Windows.Forms.Padding(4);
             this.login.Name = "login";
             this.login.Size = new System.Drawing.Size(138, 28);
@@ -337,5 +353,6 @@ namespace WindowsFormsApplication1
         private System.Windows.Forms.TextBox InvitarBox;
         private System.Windows.Forms.Button botonInciarSala;
         private System.Windows.Forms.Label labelInvitado;
+        private System.Windows.Forms.Button dardebaja;
     }
 }
