@@ -54,6 +54,8 @@ int sockets[100];
 Mensaje chatMensajes[100];
 int chatIndex = 0; //Indice del mensaje actual 
 int idSalaActual = -1;
+int session_iniciada = 1;
+
 
 ////_________________________________________________________________________________
 
@@ -344,7 +346,6 @@ void* AtenderClientes(void* socket)
 					{
 						sprintf(respuesta, "1/SI/Inicio de sesión correcto");
 						strcpy(usuario_logueado, nombre);
-						session_iniciada = 1;
 
 						// Ahora añadimos al cliente a la lista de conectados
 						pthread_mutex_lock(&mutex); //No me interrumpas ahora el proceso de este thread
@@ -546,167 +547,168 @@ void* AtenderClientes(void* socket)
 		//MECANISMO DE INVITACION / ACEPTAR o RECHAZAR RESPUESTA
 		else if (codigo ==7 || codigo ==8)
 		{
-			if (session_iniciada == 0) 
+			//EL CLIENTE INVITADOR QUIERE INVITAR A ALGUIEN 7/0/nombreInvitado
+			if (codigo == 7) 
 			{
-				sprintf(respuesta, "9/Debes iniciar session primero");
-			}
-			else 
-			{
-				//EL CLIENTE INVITADOR QUIERE INVITAR A ALGUIEN 7/0/nombreInvitado
-				if (codigo == 7) 
-				{
+			
+				pthread_mutex_lock(&mutex);
+				int socketInvitado = BuscaSocketPorNombre(&ListaContectados, nombre);
+				pthread_mutex_unlock(&mutex);
+
+				if (socketInvitado != -1) {
+					sprintf(respuesta, "9/Invitación enviada a %s", nombre);
+					write(sock_conn, respuesta, strlen(respuesta));
+
+					if (idSalaActual == -1) { // Crear sala si no existe
+						Sala nuevaSala;
+						nuevaSala.numSockets = 0;
+						nuevaSala.sockets[nuevaSala.numSockets++] = sock_conn;
+						idSalaActual = PonSala(&ListaSalas, nuevaSala);
+
 				
+
+						//Añadimos la sala a la base de datos:
+						char query[256];
+						sprintf(query, "INSERT INTO Salas () VALUES ()"); // La fecha se genera automáticamente
+						if (mysql_query(conn, query)) {
+							printf("Error al insertar sala en la base de datos: %s\n", mysql_error(conn));
+						}
+
+						//Añadimos el primer jugador a la base de datos
+						sprintf(query, "INSERT INTO Participantes (sala_id, usuario_id) SELECT %d, id FROM Jugadores WHERE usuario='%s'", idSalaActual, usuario_logueado);
+						if (mysql_query(conn, query)) {
+							printf("Error al insertar participante en la base de datos: %s\n", mysql_error(conn));
+						}
+					}
+
 					pthread_mutex_lock(&mutex);
-					int socketInvitado = BuscaSocketPorNombre(&ListaContectados, nombre);
+					Sala* salaActual = &ListaSalas.salas[idSalaActual];
+					salaActual->sockets[salaActual->numSockets++] = socketInvitado;
 					pthread_mutex_unlock(&mutex);
 
-					if (socketInvitado != -1) {
-						sprintf(respuesta, "9/Invitación enviada a %s", nombre);
-						write(sock_conn, respuesta, strlen(respuesta));
+					//SE ENVIA AL CLIENTE INVITADO UNA RESPUESTA 7/nombreInvitador
+					sprintf(respuestaINV, "7/%s", usuario_logueado);
+					write(socketInvitado, respuestaINV, strlen(respuestaINV));
 
-						if (idSalaActual == -1) { // Crear sala si no existe
-							Sala nuevaSala;
-							nuevaSala.numSockets = 0;
-							nuevaSala.sockets[nuevaSala.numSockets++] = sock_conn;
-							idSalaActual = PonSala(&ListaSalas, nuevaSala);
+				}
+				else {
+					sprintf(respuesta, "9/Usuario %s no encontrado", nombre);
+					write(sock_conn, respuesta, strlen(respuesta));
+				}
+			}
+				
+			//EL CLIENTE HA RECIBIDO UNA PETICION 7/ Y A CONTESTADO A LA INVITACION GENERANDO UNA PETICION
+			// 8/0/nomInvitador/SI o NO ; SI ES SI SE LE ANADE A LA SALA 
+			// SE GENERA UNA RESPUESTA 8/SI o NO/idSala SI ES UNA SIMPLE NOTIFICACION, SI ES NO SE LE PREGUNTA AL INVITADOR POR EL FUTURO DE LA SALA
+			else if (codigo == 8) { 
+				pthread_mutex_lock(&mutex); 
+				int socketInvitador = BuscaSocketPorNombre(&ListaContectados, nombre); // Buscar socket del cliente invitador 
+				pthread_mutex_unlock(&mutex); 
+				
+				if (socketInvitador != -1) { 
+					char respuestaBool[20]; 
+					p = strtok(NULL, "/"); 
 
-					
-
-							//Añadimos la sala a la base de datos:
+					if (strcmp(p, "SI") == 0) {
+						Sala* salaActual = &ListaSalas.salas[idSalaActual-1];
+						if (salaActual->numSockets < MAX_CLIENTES) {
+							salaActual->sockets[salaActual->numSockets] = sock_conn;
+							salaActual->numSockets++;
+							sprintf(respuestaBool, "8/%s/%d", p, idSalaActual);
+							printf("Respuesta: %s\n", respuestaBool); 
+							write(socketInvitador, respuestaBool, strlen(respuestaBool));
+							
 							char query[256];
-							sprintf(query, "INSERT INTO Salas () VALUES ()"); // La fecha se genera automáticamente
+							//Añadimos el siguiente jugador a la base de datos
+							sprintf(query, "INSERT INTO Participantes (sala_id, usuario_id) SELECT %d, id FROM Jugadores WHERE usuario='%s'", idSalaActual, usuario_logueado);
 							if (mysql_query(conn, query)) {
 								printf("Error al insertar sala en la base de datos: %s\n", mysql_error(conn));
 							}
-
-							//Añadimos el primer jugador a la base de datos
-							sprintf(query, "INSERT INTO Participantes (sala_id, usuario_id) SELECT %d, id FROM Jugadores WHERE usuario='%s'", idSalaActual, usuario_logueado);
-							if (mysql_query(conn, query)) {
-								printf("Error al insertar participante en la base de datos: %s\n", mysql_error(conn));
-							}
 						}
-
-						pthread_mutex_lock(&mutex);
-						Sala* salaActual = &ListaSalas.salas[idSalaActual];
-						salaActual->sockets[salaActual->numSockets++] = socketInvitado;
-						pthread_mutex_unlock(&mutex);
-
-						//SE ENVIA AL CLIENTE INVITADO UNA RESPUESTA 7/nombreInvitador
-						sprintf(respuestaINV, "7/%s", usuario_logueado);
-						write(socketInvitado, respuestaINV, strlen(respuestaINV));
-
-					}
-					else {
-						sprintf(respuesta, "9/Usuario %s no encontrado", nombre);
-						write(sock_conn, respuesta, strlen(respuesta));
-					}
-				}
-				
-				//EL CLIENTE HA RECIBIDO UNA PETICION 7/ Y A CONTESTADO A LA INVITACION GENERANDO UNA PETICION
-				// 8/0/nomInvitador/SI o NO ; SI ES SI SE LE ANADE A LA SALA 
-				// SE GENERA UNA RESPUESTA 8/SI o NO/idSala SI ES UNA SIMPLE NOTIFICACION, SI ES NO SE LE PREGUNTA AL INVITADOR POR EL FUTURO DE LA SALA
-				else if (codigo == 8) { 
-					pthread_mutex_lock(&mutex); 
-					int socketInvitador = BuscaSocketPorNombre(&ListaContectados, nombre); // Buscar socket del cliente invitador 
-					pthread_mutex_unlock(&mutex); 
-					
-					if (socketInvitador != -1) { 
-						char respuestaBool[20]; 
-						p = strtok(NULL, "/"); 
-
-						if (strcmp(p, "SI") == 0) {
-							Sala* salaActual = &ListaSalas.salas[idSalaActual-1];
-							if (salaActual->numSockets < MAX_CLIENTES) {
-								salaActual->sockets[salaActual->numSockets] = sock_conn;
-								salaActual->numSockets++;
-								sprintf(respuestaBool, "8/%s/%d", p, idSalaActual);
-								printf("Respuesta: %s\n", respuestaBool); 
-								write(socketInvitador, respuestaBool, strlen(respuestaBool));
-								
-								char query[256];
-								//Añadimos el siguiente jugador a la base de datos
-								sprintf(query, "INSERT INTO Participantes (sala_id, usuario_id) SELECT %d, id FROM Jugadores WHERE usuario='%s'", idSalaActual, usuario_logueado);
-								if (mysql_query(conn, query)) {
-									printf("Error al insertar sala en la base de datos: %s\n", mysql_error(conn));
-								}
-							}
-							else {
-								sprintf(respuesta, "9/Sala llena");
-							}
+						else {
+							sprintf(respuesta, "9/Sala llena");
 						}
-						else if (strcmp(p, "NO") == 0) { 
-							
-							sprintf(respuestaBool, "8/%s/%d",p,idSalaActual); 
-							printf("Respuesta: %s\n", respuestaBool); 
+					}
+					else if (strcmp(p, "NO") == 0) { 
 						
-							write(socketInvitador, respuestaBool, strlen(respuestaBool)); 
-						} 
+						sprintf(respuestaBool, "8/%s/%d",p,idSalaActual); 
+						printf("Respuesta: %s\n", respuestaBool); 
+					
+						write(socketInvitador, respuestaBool, strlen(respuestaBool)); 
 					} 
-					else { 
-						sprintf(respuesta, "9/No se encuentra al usuario invitador"); 
-					} 
-				}
+				} 
+				else { 
+					sprintf(respuesta, "9/No se encuentra al usuario invitador"); 
+				} 
 			}
+			
 		}
 
 		//_________________________________________________________________________________
 		
 		//PETICION 10 PARA ENVIAR MENSAJES 10/idS/nombre/mensaje
 		else if (codigo == 10) { 
-			if (session_iniciada == 0) 
-			{
-				sprintf(respuesta, "10/%d/Debes iniciar sesión primero",numForms);
+			
+			// Obtener el mensaje del cliente
+			p = strtok(NULL, "/");
+			char mensaje[512];
+			strcpy(mensaje, p);
+
+			//POR RAZONES LOGISTICAS EN ESTE METODO EL idS, es decir el numero id de la sala de chat se le llama numForms
+			//POR TANTO SOLO Y SOLO EN ESTE METODO numForms = idS
+
+			//Comprovacion con prints del sock_con i el numForms
+			printf("%d\n",sock_conn);
+			printf("%d\n",numForms);
+			// Formatear el mensaje para enviar a todos los clientes de la sala
+			sprintf(respuesta, "10/%d/%s: %s",numForms, usuario_logueado, mensaje);
+			if (numForms-1 != -1) {
+				// Enviar el mensaje a todos los clientes de la sala correspondiente
+				Sala* sala = &ListaSalas.salas[numForms-1];
+				for (int i = 0; i < sala->numSockets; i++) 
+				{
+					printf("%d",sala->sockets[i]);
+					if (sala->sockets[i] != sock_conn) 
+					{
+						printf("Enviando mensaje a socket %d: %s\n", sala->sockets[i], respuesta);
+						write(sala->sockets[i], respuesta, strlen(respuesta));
+					}
+				}
+				
+				sprintf(respuestaINV, "9/Mensaje enviado correctamente");
+				printf("Respuesta: %s\n", respuestaINV);
+				// Enviamos la respuesta
+				write(sock_conn, respuestaINV, strlen(respuestaINV	));
+				
+				
+
+				// Guardar el mensaje en la base de datos
+				char query[512];
+				sprintf(query,
+					"INSERT INTO Mensajes (sala_id, usuario_id, mensaje) "
+					"VALUES (%d, (SELECT id FROM Jugadores WHERE usuario='%s'), '%s')",
+					numForms, nombre, mensaje);
+
+				if (mysql_query(conn, query)) {
+					printf("Error al registrar el mensaje en la base de datos: %s\n", mysql_error(conn));
+					sprintf(respuesta, "9/Error al registrar el mensaje");
+					
+					printf("Respuesta: %s\n", respuesta);
+					// Enviamos la respuesta
+					write(sock_conn, respuesta, strlen(respuesta));
+					
+				}
+				else {
+					sprintf(respuesta, "9/Mensaje enviado correctamente");
+				}
 			}
 			else 
 			{
-				// Obtener el mensaje del cliente
-				p = strtok(NULL, "/");
-				char mensaje[512];
-				strcpy(mensaje, p);
-
-				//POR RAZONES LOGISTICAS EN ESTE METODO EL idS, es decir el numero id de la sala de chat se le llama numForms
-				//POR TANTO SOLO Y SOLO EN ESTE METODO numForms = idS
-
-				//Comprovacion con prints del sock_con i el numForms
-				printf("%d\n",sock_conn);
-				printf("%d\n",numForms);
-				// Formatear el mensaje para enviar a todos los clientes de la sala
-				sprintf(respuesta, "10/%d/%s: %s",numForms, usuario_logueado, mensaje);
-				if (numForms-1 != -1) {
-					// Enviar el mensaje a todos los clientes de la sala correspondiente
-					Sala* sala = &ListaSalas.salas[numForms-1];
-					for (int i = 0; i < sala->numSockets; i++) 
-					{
-						printf("%d",sala->sockets[i]);
-						if (sala->sockets[i] != sock_conn) 
-						{
-							printf("Enviando mensaje a socket %d: %s\n", sala->sockets[i], respuesta);
-							write(sala->sockets[i], respuesta, strlen(respuesta));
-						}
-					}
-
-					// Guardar el mensaje en la base de datos
-					char query[512];
-					sprintf(query,
-						"INSERT INTO Mensajes (sala_id, usuario_id, mensaje) "
-						"VALUES (%d, (SELECT id FROM Jugadores WHERE usuario='%s'), '%s')",
-						numForms, nombre, mensaje);
-
-					if (mysql_query(conn, query)) {
-						printf("Error al registrar el mensaje en la base de datos: %s\n", mysql_error(conn));
-						sprintf(respuesta, "9/Error al registrar el mensaje");
-					}
-					else {
-						sprintf(respuesta, "9/Mensaje enviado correctamente");
-					}
-				}
-				else 
-				{
-					printf("Error: No se encontró la sala para el socket %d\n", sock_conn);
-					sprintf(respuesta, "10/%d/Error al enviar el mensaje: sala no encontrada",numForms);
-					write(sock_conn, respuesta, strlen(respuesta));
-				}
+				printf("Error: No se encontró la sala para el socket %d\n", sock_conn);
+				sprintf(respuesta, "10/%d/Error al enviar el mensaje: sala no encontrada",numForms);
+				write(sock_conn, respuesta, strlen(respuesta));
 			}
+			
 		}
 
 		//_________________________________________________________________________________

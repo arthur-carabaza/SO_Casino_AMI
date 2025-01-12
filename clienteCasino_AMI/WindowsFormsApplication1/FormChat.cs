@@ -64,5 +64,12 @@ namespace WindowsFormsApplication1
             txtnumForms.Text = idS.ToString();
             txtname.Text = username.ToString(); 
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            // Cambia el color de fondo a un color aleatorio
+            Random random = new Random();
+            this.BackColor = System.Drawing.Color.FromArgb(random.Next(256), random.Next(256), random.Next(256));
+        }
     }
 }

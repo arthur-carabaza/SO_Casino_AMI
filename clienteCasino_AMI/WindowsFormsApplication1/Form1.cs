@@ -23,6 +23,8 @@ namespace WindowsFormsApplication1
         bool salaPreparada = false; // Indica si la sala está lista para iniciar
         int idSala = -1;
 
+        bool iniciadoSession = false;
+
         delegate void DelegadoParaEscribir(string mensaje);
         delegate void DelegadoParaActualizarLista(string mensaje);
         delegate void DelegadoParaMostrarMensaje(string mensaje);
@@ -30,6 +32,7 @@ namespace WindowsFormsApplication1
         delegate void DelegadoParaEscribirInitados(string Inombre);
 
         delegate void DelegadoParaAbrirBoton();
+        delegate void DelegadoParaBorrar();
 
         List<FormChat> formularios = new List<FormChat> ();
         int[] IDSalas = new int[50];
@@ -37,7 +40,11 @@ namespace WindowsFormsApplication1
         private void DeshabilitarBoton()
         {
             botonInciarSala.Enabled = false; // Deshabilitar botón
+        }
 
+        private void Borrar()
+        {
+            InvitarBox.Text = null; // Limpiar la caja de texto
         }
 
 
@@ -146,6 +153,8 @@ namespace WindowsFormsApplication1
                         {
                             this.Invoke(new DelegadoParaMostrarMensaje(MostrarMensaje), new object[] { mensaje });
                             this.Invoke(new DelegadoParaActualizarNombrePartida(ActualizarNombrePartida), new object[] { nombre });
+                            iniciadoSession = true;
+
                         }
                         else if (trozos[1] == "NO")
                         {
@@ -167,15 +176,17 @@ namespace WindowsFormsApplication1
 
                     case 3: //RESULTADO QUERRY CON QUIEN HE ESTADO EN PARTIDA: 3/Juan,Carlos,Miguel
                         mensaje = trozos[1].Split('\0')[0];
+                        MessageBox.Show("Has estado en partida con" + mensaje);
+                        break;
+
+                    case 4: //RESULTADO QUERRY CUANTOS MENSAJES HE ENVIADO A...: 4/4
+                        mensaje = trozos[1].Split('\0')[0];
+                        MessageBox.Show("Has enviado " + mensaje + "mensajes");
+                        break;
+
+                    case 5: //RESULTADO QUERRY QUE SALAS SE HAN CREADO DESDE X tiempo : 5/ Sala1; Juan,Miguel | Sala2: Juan,Alvaro | Sala3: Alvaro,Pablo
+                        mensaje = trozos[1].Split('\0')[0];
                         MessageBox.Show(mensaje);
-                        break;
-
-                    case 4: //respuesta a query cuantas visctoria 
-                        MessageBox.Show(nombre);
-                        break;
-
-                    case 5: //Respuesta a query cuantas victorias 
-                        MessageBox.Show(nombre);
                         break;
 
                     case 6: //Notificacion de conectados
@@ -214,7 +225,23 @@ namespace WindowsFormsApplication1
                         {
                             MessageBox.Show("Su invitación ha sido aceptada");
                             idSala = Convert.ToInt32(trozos[2]); // Guardar ID de sala
+
+                            string Ninvitado = InvitarBox.Text;
+                            string Linvitados;
+                            // Agregar el nombre del invitado a la lista
+                            if (salaPreparada)
+                            {
+                                Linvitados = labelInvitado.Text + "/" + Ninvitado;
+                                this.Invoke(new DelegadoParaEscribirInitados(EscribirInvitados), new object[] { Linvitados });
+                            }
+                            else
+                            {
+                                Linvitados = "Invitados: " + Ninvitado;
+                                this.Invoke(new DelegadoParaEscribirInitados(EscribirInvitados), new object[] { Linvitados });
+                            }
+
                             salaPreparada = true; // Marcar sala como lista
+                            this.Invoke(new DelegadoParaBorrar(Borrar), new object[] {});
                         }
                         else
                         {
@@ -314,77 +341,114 @@ namespace WindowsFormsApplication1
 
         private void button2_Click(object sender, EventArgs e)
         {
-            
-            if (Dinero.Checked)
+            if ((iniciadoSession)&&(conectado))
             {
-                //Quiere saber cuanto dinero tiene
-                string mensaje = "3/0/" + nombreTextBox.Text;
-                try
+
+                if (query3.Checked)
                 {
+                    //Quiere saber cuanto dinero tiene
+                    string mensaje = "3/0/" + nombreTextBox.Text;
+                    try
+                    {
+                        // Enviamos al servidor el nombre tecleado
+                        byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                        server.Send(msg);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error al realizar la peticion, asegurese de estar conectado");
+                    }
+                }
+                else if (query4.Checked)
+                {
+                    //Quiere saber cuantas victoras tengo
+                    string mensaje = "4/0/" + nombreTextBox.Text + "/" + query.Text;
                     // Enviamos al servidor el nombre tecleado
                     byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                     server.Send(msg);
                 }
-                catch (Exception ex)
+                else
                 {
-                    MessageBox.Show("Error al realizar la peticion, asegurese de estar conectado");
+                    //Quiere saber que cartas tengo
+                    string mensaje = "5/0/" + nombreTextBox.Text + "/" + query.Text;
+                    // Enviamos al servidor el nombre tecleado
+                    byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                    server.Send(msg);
                 }
             }
-            else if (Victorias.Checked)
+
+            else
             {
-                //Quiere saber cuantas victoras tengo
-                string mensaje = "4/0/" + nombreTextBox.Text + "/" + query.Text;
-                // Enviamos al servidor el nombre tecleado
+                MessageBox.Show("No has iniciado session o no estas conectado!");
+            }
+        }
+        private void desconectar_Click(object sender, EventArgs e)
+        {
+            if (conectado)
+            {
+                //Mensaje de desconexion
+                string mensaje = "0/";
+
+                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
+
+                //Nos deconectamos
+                conectado = false;
+                iniciadoSession = false;
+                atender.Abort();
+                this.Invalidate(new Rectangle(20, 20, 40, 40)); //Redibujar el formulario para actualizar el circulo
+                this.Update();
+
+                ListaConectados.Text = null;
+                NombrePartida.Text = null;
+                nombreTextBox.Text = null;
+                Password.Text = null;
+
+                server.Shutdown(SocketShutdown.Both);
+                server.Close();
+            }
+            else
+            {
+                MessageBox.Show("Ya estas desconectado!!!!");
+            }
+        }
+
+        private void login_Click(object sender, EventArgs e)
+        {
+            if (conectado)
+            {
+                if (iniciadoSession)
+                {
+                    //Quiere iniciar session
+                    string mensaje = "1/0/" + nombreTextBox.Text + "/" + Password.Text;
+                    // Enviamos al servidor el nombre tecleado y la contraseña
+                    byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                    server.Send(msg);
+                }
+                else
+                {
+                    MessageBox.Show("Ya has iniciado session!!");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Conectate Primero!!!");
+            }
+        }
+        private void registrarse_Click(object sender, EventArgs e)
+        {
+            if (conectado)
+            {
+                //Quiere registrarse
+                string mensaje = "2/0/" + nombreTextBox.Text + "/" + Password.Text;
+                // Enviamos al servidor el nombre tecleado y la contraseña
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
             }
             else
             {
-                //Quiere saber que cartas tengo
-                string mensaje = "5/0/" + nombreTextBox.Text + "/" + query.Text;
-                // Enviamos al servidor el nombre tecleado
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                server.Send(msg);
+                MessageBox.Show("Conectate Primero!!!!!");
             }
-        }
-        private void desconectar_Click(object sender, EventArgs e)
-        {
-            //Mensaje de desconexion
-            string mensaje = "0/";
-
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-            server.Send(msg);
-
-            //Nos deconectamos
-            conectado = false;
-            atender.Abort();
-            this.Invalidate(new Rectangle(20,20,40,40)); //Redibujar el formulario para actualizar el circulo
-            this.Update();
-
-            ListaConectados.Text = null;
-            NombrePartida.Text = null;
-            nombreTextBox.Text = null;
-            Password.Text = null;
-
-            server.Shutdown(SocketShutdown.Both);
-            server.Close();
-        }
-
-        private void login_Click(object sender, EventArgs e)
-        {
-            //Quiere iniciar session
-            string mensaje = "1/0/" + nombreTextBox.Text + "/" + Password.Text;
-            // Enviamos al servidor el nombre tecleado y la contraseña
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-            server.Send(msg);          
-        }
-        private void registrarse_Click(object sender, EventArgs e)
-        {
-            //Quiere registrarse
-            string mensaje = "2/0/" + nombreTextBox.Text + "/" + Password.Text;
-            // Enviamos al servidor el nombre tecleado y la contraseña
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-            server.Send(msg);
         }
         private void label4_Click(object sender, EventArgs e)
         {
@@ -392,48 +456,27 @@ namespace WindowsFormsApplication1
 
         private void InvitarButton_Click(object sender, EventArgs e)
         {
-            string Ninvitado = InvitarBox.Text;
-            if (string.IsNullOrWhiteSpace(Ninvitado))
+            if ((iniciadoSession)&&(conectado))
             {
-                MessageBox.Show("Escriba un nombre de usuario que quiera invitar");
-            }
-            else
-            {
-                // Agregar el nombre del invitado a la lista
-                if (string.IsNullOrWhiteSpace(invitadoActual))
+                string Ninvitado = InvitarBox.Text;
+                if (string.IsNullOrWhiteSpace(Ninvitado))
                 {
-                    string Linvitados;
-                    if (salaPreparada)
-                    {
-                        Linvitados = labelInvitado.Text + "/" + Ninvitado;
-                        this.Invoke(new DelegadoParaEscribirInitados(EscribirInvitados), new object[] { Linvitados });
-
-                    }
-                    else
-                    {
-                        Linvitados = "Invitados: " + Ninvitado;
-                        this.Invoke(new DelegadoParaEscribirInitados(EscribirInvitados), new object[] { Linvitados });
-
-                    }
-                    invitadoActual = InvitarBox.Text;
+                    MessageBox.Show("Escriba un nombre de usuario que quiera invitar");
                 }
                 else
                 {
-                    invitadoActual += ", " + InvitarBox.Text;
+                    // Enviar mensaje de invitación al servidor
+                    string mensaje = "7/0/" + InvitarBox.Text;
+                    byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                    server.Send(msg);
+
+                    botonInciarSala.Enabled = true; // Habilitar el botón para empezar la partida
                 }
-
-                // Actualizar la etiqueta con los invitados actuales
-                labelInvitado.Text = "Invitados: " + invitadoActual;
-
-                // Enviar mensaje de invitación al servidor
-                string mensaje = "7/0/" + InvitarBox.Text;
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                server.Send(msg);
-
-                botonInciarSala.Enabled = true; // Habilitar el botón para empezar la partida
             }
-
-            InvitarBox.Text = null; // Limpiar la caja de texto
+            else
+            {
+                MessageBox.Show("NO has iniciado session o no estas conectado");
+            }
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -480,12 +523,31 @@ namespace WindowsFormsApplication1
 
         private void dardebaja_Click(object sender, EventArgs e)
         {
-            //Quiere Darse de Baja
-            string mensaje = "13/0/" + nombreTextBox.Text; 
-            // Enviamos al servidor el nombre tecleado y la contraseña
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-            server.Send(msg);
+            if (conectado)
+            {
+                if (!iniciadoSession)
+                {
+                    //Quiere Darse de Baja
+                    string mensaje = "13/0/" + nombreTextBox.Text;
+                    // Enviamos al servidor el nombre tecleado y la contraseña
+                    byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                    server.Send(msg);
+                }
+                else
+                {
+                    MessageBox.Show("Porfavor realiza la operacion de darse de baja sin estar haver inicado session");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Tienes que conectarte primero!");
+            }
+        }
 
+        private void help_Click(object sender, EventArgs e)
+        {
+            FormHelp help = new FormHelp();
+            help.ShowDialog(); 
         }
     }
 }

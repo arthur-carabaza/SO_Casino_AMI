@@ -32,15 +32,16 @@ namespace WindowsFormsApplication1
             this.InvitarBox = new System.Windows.Forms.TextBox();
             this.registrarse = new System.Windows.Forms.Button();
             this.login = new System.Windows.Forms.Button();
-            this.Cartas = new System.Windows.Forms.RadioButton();
-            this.Victorias = new System.Windows.Forms.RadioButton();
+            this.query5 = new System.Windows.Forms.RadioButton();
+            this.query4 = new System.Windows.Forms.RadioButton();
             this.label1 = new System.Windows.Forms.Label();
             this.Password = new System.Windows.Forms.TextBox();
-            this.Dinero = new System.Windows.Forms.RadioButton();
+            this.query3 = new System.Windows.Forms.RadioButton();
             this.conectar = new System.Windows.Forms.Button();
             this.desconectar = new System.Windows.Forms.Button();
             this.NombrePartida = new System.Windows.Forms.Label();
             this.ListaConectados = new System.Windows.Forms.Label();
+            this.help = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -70,7 +71,7 @@ namespace WindowsFormsApplication1
             this.button2.BackColor = System.Drawing.Color.ForestGreen;
             this.button2.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.button2.ForeColor = System.Drawing.Color.White;
-            this.button2.Location = new System.Drawing.Point(292, 305);
+            this.button2.Location = new System.Drawing.Point(337, 305);
             this.button2.Margin = new System.Windows.Forms.Padding(4);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(147, 34);
@@ -82,6 +83,7 @@ namespace WindowsFormsApplication1
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.Color.LightSlateGray;
+            this.groupBox1.Controls.Add(this.help);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.query);
             this.groupBox1.Controls.Add(this.dardebaja);
@@ -91,11 +93,11 @@ namespace WindowsFormsApplication1
             this.groupBox1.Controls.Add(this.InvitarBox);
             this.groupBox1.Controls.Add(this.registrarse);
             this.groupBox1.Controls.Add(this.login);
-            this.groupBox1.Controls.Add(this.Cartas);
-            this.groupBox1.Controls.Add(this.Victorias);
+            this.groupBox1.Controls.Add(this.query5);
+            this.groupBox1.Controls.Add(this.query4);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.Password);
-            this.groupBox1.Controls.Add(this.Dinero);
+            this.groupBox1.Controls.Add(this.query3);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.button2);
             this.groupBox1.Controls.Add(this.nombreTextBox);
@@ -124,7 +126,7 @@ namespace WindowsFormsApplication1
             // query
             // 
             this.query.Font = new System.Drawing.Font("Segoe UI", 12F);
-            this.query.Location = new System.Drawing.Point(62, 305);
+            this.query.Location = new System.Drawing.Point(105, 305);
             this.query.Margin = new System.Windows.Forms.Padding(4);
             this.query.Name = "query";
             this.query.Size = new System.Drawing.Size(217, 34);
@@ -223,31 +225,31 @@ namespace WindowsFormsApplication1
             this.login.UseVisualStyleBackColor = false;
             this.login.Click += new System.EventHandler(this.login_Click);
             // 
-            // Cartas
+            // query5
             // 
-            this.Cartas.AutoSize = true;
-            this.Cartas.ForeColor = System.Drawing.Color.White;
-            this.Cartas.Location = new System.Drawing.Point(155, 254);
-            this.Cartas.Margin = new System.Windows.Forms.Padding(4);
-            this.Cartas.Name = "Cartas";
-            this.Cartas.Size = new System.Drawing.Size(355, 27);
-            this.Cartas.TabIndex = 12;
-            this.Cartas.TabStop = true;
-            this.Cartas.Text = "Que salas se han creado en este tiempo ?";
-            this.Cartas.UseVisualStyleBackColor = true;
+            this.query5.AutoSize = true;
+            this.query5.ForeColor = System.Drawing.Color.White;
+            this.query5.Location = new System.Drawing.Point(155, 254);
+            this.query5.Margin = new System.Windows.Forms.Padding(4);
+            this.query5.Name = "query5";
+            this.query5.Size = new System.Drawing.Size(355, 27);
+            this.query5.TabIndex = 12;
+            this.query5.TabStop = true;
+            this.query5.Text = "Que salas se han creado en este tiempo ?";
+            this.query5.UseVisualStyleBackColor = true;
             // 
-            // Victorias
+            // query4
             // 
-            this.Victorias.AutoSize = true;
-            this.Victorias.ForeColor = System.Drawing.Color.White;
-            this.Victorias.Location = new System.Drawing.Point(155, 226);
-            this.Victorias.Margin = new System.Windows.Forms.Padding(4);
-            this.Victorias.Name = "Victorias";
-            this.Victorias.Size = new System.Drawing.Size(264, 27);
-            this.Victorias.TabIndex = 11;
-            this.Victorias.TabStop = true;
-            this.Victorias.Text = "Cuantos mensajes he enviado";
-            this.Victorias.UseVisualStyleBackColor = true;
+            this.query4.AutoSize = true;
+            this.query4.ForeColor = System.Drawing.Color.White;
+            this.query4.Location = new System.Drawing.Point(155, 226);
+            this.query4.Margin = new System.Windows.Forms.Padding(4);
+            this.query4.Name = "query4";
+            this.query4.Size = new System.Drawing.Size(264, 27);
+            this.query4.TabIndex = 11;
+            this.query4.TabStop = true;
+            this.query4.Text = "Cuantos mensajes he enviado";
+            this.query4.UseVisualStyleBackColor = true;
             // 
             // label1
             // 
@@ -271,18 +273,18 @@ namespace WindowsFormsApplication1
             this.Password.Size = new System.Drawing.Size(217, 34);
             this.Password.TabIndex = 9;
             // 
-            // Dinero
+            // query3
             // 
-            this.Dinero.AutoSize = true;
-            this.Dinero.ForeColor = System.Drawing.Color.White;
-            this.Dinero.Location = new System.Drawing.Point(155, 197);
-            this.Dinero.Margin = new System.Windows.Forms.Padding(4);
-            this.Dinero.Name = "Dinero";
-            this.Dinero.Size = new System.Drawing.Size(265, 27);
-            this.Dinero.TabIndex = 10;
-            this.Dinero.TabStop = true;
-            this.Dinero.Text = "Con quien he estado en sala ?";
-            this.Dinero.UseVisualStyleBackColor = true;
+            this.query3.AutoSize = true;
+            this.query3.ForeColor = System.Drawing.Color.White;
+            this.query3.Location = new System.Drawing.Point(155, 197);
+            this.query3.Margin = new System.Windows.Forms.Padding(4);
+            this.query3.Name = "query3";
+            this.query3.Size = new System.Drawing.Size(265, 27);
+            this.query3.TabIndex = 10;
+            this.query3.TabStop = true;
+            this.query3.Text = "Con quien he estado en sala ?";
+            this.query3.UseVisualStyleBackColor = true;
             // 
             // conectar
             // 
@@ -336,6 +338,16 @@ namespace WindowsFormsApplication1
             this.ListaConectados.TabIndex = 11;
             this.ListaConectados.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // help
+            // 
+            this.help.Location = new System.Drawing.Point(8, 305);
+            this.help.Name = "help";
+            this.help.Size = new System.Drawing.Size(34, 34);
+            this.help.TabIndex = 21;
+            this.help.Text = "?";
+            this.help.UseVisualStyleBackColor = true;
+            this.help.Click += new System.EventHandler(this.help_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -348,7 +360,7 @@ namespace WindowsFormsApplication1
             this.Controls.Add(this.conectar);
             this.Controls.Add(this.desconectar);
             this.Name = "Form1";
-            this.Text = "Poker Game Client";
+            this.Text = "Chat Game Client";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint);
             this.groupBox1.ResumeLayout(false);
@@ -363,11 +375,11 @@ namespace WindowsFormsApplication1
         private System.Windows.Forms.TextBox nombreTextBox;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.RadioButton Cartas;
-        private System.Windows.Forms.RadioButton Victorias;
+        private System.Windows.Forms.RadioButton query5;
+        private System.Windows.Forms.RadioButton query4;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox Password;
-        private System.Windows.Forms.RadioButton Dinero;
+        private System.Windows.Forms.RadioButton query3;
         private System.Windows.Forms.Button conectar;
         private System.Windows.Forms.Button desconectar;
         private System.Windows.Forms.Button registrarse;
@@ -381,5 +393,6 @@ namespace WindowsFormsApplication1
         private System.Windows.Forms.Button dardebaja;
         private System.Windows.Forms.TextBox query;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button help;
     }
 }

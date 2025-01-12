@@ -33,6 +33,8 @@
             this.btnEnviar = new System.Windows.Forms.Button();
             this.txtnumForms = new System.Windows.Forms.TextBox();
             this.txtname = new System.Windows.Forms.TextBox();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // txtChat
@@ -77,17 +79,38 @@
             this.txtname.Size = new System.Drawing.Size(100, 22);
             this.txtname.TabIndex = 4;
             // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.SystemColors.ActiveBorder;
+            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel1.Location = new System.Drawing.Point(36, 12);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(570, 342);
+            this.panel1.TabIndex = 5;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(36, 379);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(184, 38);
+            this.button1.TabIndex = 6;
+            this.button1.Text = "Cambiar Fondo";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // FormChat
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.ClientSize = new System.Drawing.Size(1017, 476);
+            this.ClientSize = new System.Drawing.Size(651, 476);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.txtChat);
             this.Controls.Add(this.txtname);
             this.Controls.Add(this.txtnumForms);
             this.Controls.Add(this.btnEnviar);
             this.Controls.Add(this.txtMensaje);
-            this.Controls.Add(this.txtChat);
+            this.Controls.Add(this.panel1);
             this.Name = "FormChat";
             this.Text = "FormChat";
             this.Load += new System.EventHandler(this.FormChat_Load);
@@ -103,5 +126,7 @@
         private System.Windows.Forms.Button btnEnviar;
         private System.Windows.Forms.TextBox txtnumForms;
         private System.Windows.Forms.TextBox txtname;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Button button1;
     }
 }
