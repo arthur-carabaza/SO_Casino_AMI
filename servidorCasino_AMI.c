@@ -56,6 +56,8 @@ int chatIndex = 0; //Indice del mensaje actual
 int idSalaActual = -1;
 int session_iniciada = 1;
 
+int SessionCorrecto = 0; //0 si no ha iniciado session correctamente, 1 si si
+
 
 ////_________________________________________________________________________________
 
@@ -261,7 +263,7 @@ void* AtenderClientes(void* socket)
 		exit(1);
 	}
 	
-	if (mysql_real_connect(conn, "localhost", "root", "mysql", "JuegoChat", 0, NULL, 0) == NULL) 
+	if (mysql_real_connect(conn, "shiva2.upc.es", "root", "mysql", "M1_JuegoChat", 0, NULL, 0) == NULL) 
 	{
 		printf("Error al inicializar la conexión con la base de datos: %u %s\n", mysql_errno(conn), mysql_error(conn));
 		mysql_close(conn);
@@ -346,6 +348,8 @@ void* AtenderClientes(void* socket)
 					{
 						sprintf(respuesta, "1/SI/Inicio de session correcto");
 						strcpy(usuario_logueado, nombre);
+
+						SessionCorrecto = 1;
 
 						// Ahora añadimos al cliente a la lista de conectados
 						pthread_mutex_lock(&mutex); //No me interrumpas ahora el proceso de este thread
@@ -816,7 +820,7 @@ void* AtenderClientes(void* socket)
 		}
 		
 		//CONDIFICON DE CONEXION/DESCONEXION PARA ACTUALIZAR LA LISTA DE CONECTADOS
-		if (codigo == 1 || codigo == 0)
+		if (SessionCorrecto == 1 || codigo == 0)
 		{
 			//Notificamos a los clientes
 			char notificacion[20];
