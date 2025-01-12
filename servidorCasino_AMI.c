@@ -98,10 +98,20 @@ int PonSala(ListaSala *lista, Sala nuevaSala) {
 	}
 }
 
+int QuitaSala(ListaSalas *lista, int idSala){
+	
+	pthread_mutex_lock(&mutex);
+	for(int i =idSalas-1; i<lista->num-1;i++){
+		lista->salas[i]=lista->salas[i+1];
+	} 
+	lista->num--;
+	pthread_mute_unlock(&mutex);
+}
+
 int PonSalaDB(MYSQL* conn, Sala* nuevaSala, ListaConectados* listaConectados, int* jugadores, int numJugadores) {
 	// Insertar la sala en la tabla Salas
 	char query[256];
-	sprintf(query, "INSERT INTO Salas () VALUES ()"; //La fecha se crea automaticamente
+	sprintf(query, "INSERT INTO Salas () VALUES ()"; //La fecha se crea automaticameumnte
 	if (mysql_query(conn, query)) {
 		printf("Error al insertar sala en la base de datos: %s\n", mysql_error(conn));
 		return -1;
@@ -304,13 +314,13 @@ void* AtenderClientes(void* socket)
 				row = mysql_fetch_row(res);
 				if (row == NULL)
 				{
-					sprintf(respuesta, "1/usuario no existe");
+					sprintf(respuesta, "1/NO/usuario no existe");
 				}
 				else
 				{
 					if (strcmp(row[0], password) == 0)
 					{
-						sprintf(respuesta, "1/Inicio de sesión correcto");
+						sprintf(respuesta, "1/SI/Inicio de sesión correcto");
 						strcpy(usuario_logueado, nombre);
 						session_iniciada = 1;
 
@@ -328,7 +338,7 @@ void* AtenderClientes(void* socket)
 					}
 					else
 					{
-						sprintf(respuesta, "1/Contraseña incorrecta");
+						sprintf(respuesta, "1/NO/Contraseña incorrecta");
 					}
 				}
 				mysql_free_result(res);
@@ -743,6 +753,16 @@ void* AtenderClientes(void* socket)
 			{
 				sprintf(respuesta, "13/Baja exitosa");
 			}
+		}
+		else if (codigo == 14) { // Eliminar sala manualmente
+			
+			
+			//Obtenemos el IDsala
+			p = strtok(NULL, "/");
+			int idSala = atoi(p); // ID de la sala
+			int i = QuitaSala(ListaSala,idSala);
+			printf("Se ha eliminado la sala";
+			sprintf(respuesta, "9/Se ha eliminado la sala, ya puede volver a invitar a los jugadores");
 		}
 
 		//_________________________________________________________________________________

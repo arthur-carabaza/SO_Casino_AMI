@@ -27,6 +27,7 @@ namespace WindowsFormsApplication1
         delegate void DelegadoParaActualizarLista(string mensaje);
         delegate void DelegadoParaMostrarMensaje(string mensaje);
         delegate void DelegadoParaActualizarNombrePartida(string nombre);
+        delegate void DelegadoParaEscribirInitados(string Inombre);
 
         List<FormChat> formularios = new List<FormChat> ();
         int[] IDSalas = new int[50];
@@ -74,6 +75,11 @@ namespace WindowsFormsApplication1
         private void ActualizarListaConectados(string mensaje)
         {
             ListaConectados.Text = mensaje;
+        }
+        private void EscribirInvitados(string Inombre)
+        {
+            labelInvitado.Text = Inombre;
+
         }
 
         private void MostrarMensaje(string mensaje)
@@ -127,11 +133,20 @@ namespace WindowsFormsApplication1
                     case 1: //Respuesta a iniciar sesión ; Se encarga el formulario principal 
 
                         //Aqui obtenemos el numero al cual va dirigido la respuesta
-                        mensaje = trozos[1].Split('\0')[0];
+                        mensaje = trozos[2].Split('\0')[0];
+                        if (trozos[1] == "SI")
+                        {
+                            this.Invoke(new DelegadoParaMostrarMensaje(MostrarMensaje), new object[] { mensaje });
+                            this.Invoke(new DelegadoParaActualizarNombrePartida(ActualizarNombrePartida), new object[] { nombre });
+                        }
+                        else if (trozos[1] == "NO")
+                        {
+                            this.Invoke(new DelegadoParaMostrarMensaje(MostrarMensaje), new object[] { mensaje });
 
-                        this.Invoke(new DelegadoParaMostrarMensaje(MostrarMensaje), new object[] { mensaje });
-                        this.Invoke(new DelegadoParaActualizarNombrePartida(ActualizarNombrePartida), new object[] { nombre });
-                    break;
+                        }
+
+
+                        break;
 
 
                     case 2: //Respuesta a registro ; Se encarga el formulario principal 
@@ -200,15 +215,19 @@ namespace WindowsFormsApplication1
                             {
                                 salaPreparada = true; //Marcar sala como preparada
                                 idSala = Convert.ToInt32(trozos[2]); // Guardar ID de sala
-                                labelInvitado.Text = "Invitado: Ninguno";
 
                             }
                             else
                             {
                                 MessageBox.Show("La partida de cancela");
                                 invitadoActual = null; // Resetear invitado
-                                labelInvitado.Text = "Invitado: Ninguno";
+                                string invitados = "Invitado: Ninguno";
+                                this.Invoke(new DelegadoParaEscribirInitados(EscribirInvitados), new object[] { invitados });
                                 botonInciarSala.Enabled = false; // Deshabilitar botón
+                                string mensg = "14/"+Convert.ToString(idSala);
+                                // Enviamos al servidor la respuesta de la invitacion
+                                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensg);
+                                server.Send(msg);
                             }
 
                         }
@@ -371,7 +390,8 @@ namespace WindowsFormsApplication1
 
         private void InvitarButton_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(InvitarBox.Text))
+            string Ninvitado = InvitarBox.Text;
+            if (string.IsNullOrWhiteSpace(Ninvitado))
             {
                 MessageBox.Show("Escriba un nombre de usuario que quiera invitar");
             }
@@ -380,6 +400,19 @@ namespace WindowsFormsApplication1
                 // Agregar el nombre del invitado a la lista
                 if (string.IsNullOrWhiteSpace(invitadoActual))
                 {
+                    string Linvitados;
+                    if (salaPreparada)
+                    {
+                        Linvitados = labelInvitado.Text + "/" + Ninvitado;
+                        this.Invoke(new DelegadoParaEscribirInitados(EscribirInvitados), new object[] { Linvitados });
+
+                    }
+                    else
+                    {
+                        Linvitados = "Invitados: " + Ninvitado;
+                        this.Invoke(new DelegadoParaEscribirInitados(EscribirInvitados), new object[] { Linvitados });
+
+                    }
                     invitadoActual = InvitarBox.Text;
                 }
                 else
