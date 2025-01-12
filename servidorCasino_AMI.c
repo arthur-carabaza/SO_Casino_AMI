@@ -726,14 +726,23 @@ void* AtenderClientes(void* socket)
 			if (idSala != -1) 
 			{
 				Sala* sala = &ListaSalas.salas[idSala-1];
-				printf("estoy entrando aqui\n");
+				
+				char JugadoresDeSala[200]="";
+				for(int i =0; i<sala->numSockets;i++)
+				{
+					char *nombresAUX = BuscaNombrePorSocket(&ListaContectados,sala->sockets[i]);
+					printf("%s\n",nombresAUX);
+					sprintf(JugadoresDeSala, "%s,%s",JugadoresDeSala,nombresAUX);
+				}
+				
+				printf("%s\n",JugadoresDeSala);
 				printf("%d\n",sala->numSockets);
 				idSalaActual =-1;
 
 				// Notificar a todos los clientes de la sala
 				for (int i = 0; i < sala->numSockets; i++) 
 				{
-					sprintf(respuesta, "12/%d/Iniciar", idSala);
+					sprintf(respuesta, "12/%d/%s", idSala,JugadoresDeSala);
 					printf("Respuesta: %s\n", respuesta);
 					write(sala->sockets[i], respuesta, strlen(respuesta));
 				}

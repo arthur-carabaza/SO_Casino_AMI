@@ -35,6 +35,8 @@
             this.txtname = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.button1 = new System.Windows.Forms.Button();
+            this.Listajugadores = new System.Windows.Forms.Label();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // txtChat
@@ -74,7 +76,7 @@
             // 
             // txtname
             // 
-            this.txtname.Location = new System.Drawing.Point(474, 32);
+            this.txtname.Location = new System.Drawing.Point(505, 18);
             this.txtname.Name = "txtname";
             this.txtname.Size = new System.Drawing.Size(100, 22);
             this.txtname.TabIndex = 4;
@@ -83,9 +85,11 @@
             // 
             this.panel1.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel1.Controls.Add(this.Listajugadores);
+            this.panel1.Controls.Add(this.txtname);
             this.panel1.Location = new System.Drawing.Point(36, 12);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(570, 342);
+            this.panel1.Size = new System.Drawing.Size(674, 342);
             this.panel1.TabIndex = 5;
             // 
             // button1
@@ -98,15 +102,22 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // Listajugadores
+            // 
+            this.Listajugadores.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.Listajugadores.Location = new System.Drawing.Point(451, 72);
+            this.Listajugadores.Name = "Listajugadores";
+            this.Listajugadores.Size = new System.Drawing.Size(208, 28);
+            this.Listajugadores.TabIndex = 5;
+            // 
             // FormChat
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.ClientSize = new System.Drawing.Size(651, 476);
+            this.ClientSize = new System.Drawing.Size(815, 476);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.txtChat);
-            this.Controls.Add(this.txtname);
             this.Controls.Add(this.txtnumForms);
             this.Controls.Add(this.btnEnviar);
             this.Controls.Add(this.txtMensaje);
@@ -114,6 +125,8 @@
             this.Name = "FormChat";
             this.Text = "FormChat";
             this.Load += new System.EventHandler(this.FormChat_Load);
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -128,5 +141,6 @@
         private System.Windows.Forms.TextBox txtname;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label Listajugadores;
     }
 }

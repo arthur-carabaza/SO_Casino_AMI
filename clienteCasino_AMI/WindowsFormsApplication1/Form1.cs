@@ -77,10 +77,10 @@ namespace WindowsFormsApplication1
             return numforms;
         }
 
-        private void AbrirChat(int ID)
+        private void AbrirChat(int ID,string nombres)
         {
             int cont = formularios.Count;
-            FormChat chatform = new FormChat(server,nombreTextBox.Text,ID);
+            FormChat chatform = new FormChat(server,nombreTextBox.Text,ID,nombres);
             formularios.Add(chatform);
             IDSalas[cont] = (ID);
             chatform.ShowDialog();
@@ -291,7 +291,8 @@ namespace WindowsFormsApplication1
 
                     case 12: // Mensaje para iniciar sala
                         int salaID = Convert.ToInt32(trozos[1]);
-                        ThreadStart ts = delegate { AbrirChat(salaID); };
+                        string nombres = trozos[2];
+                        ThreadStart ts = delegate { AbrirChat(salaID,nombres); };
                         Thread chatT = new Thread(ts);
                         chatT.Start();
                         break;
@@ -417,7 +418,7 @@ namespace WindowsFormsApplication1
         {
             if (conectado)
             {
-                if (iniciadoSession)
+                if (!iniciadoSession)
                 {
                     //Quiere iniciar session
                     string mensaje = "1/0/" + nombreTextBox.Text + "/" + Password.Text;
@@ -439,11 +440,18 @@ namespace WindowsFormsApplication1
         {
             if (conectado)
             {
-                //Quiere registrarse
-                string mensaje = "2/0/" + nombreTextBox.Text + "/" + Password.Text;
-                // Enviamos al servidor el nombre tecleado y la contraseña
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                server.Send(msg);
+                if ((nombreTextBox.Text == "") || (Password.Text == ""))
+                {
+                    MessageBox.Show("No has puesto la contraseña o el usuario ");
+                }
+                else
+                {
+                    //Quiere registrarse
+                    string mensaje = "2/0/" + nombreTextBox.Text + "/" + Password.Text;
+                    // Enviamos al servidor el nombre tecleado y la contraseña
+                    byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                    server.Send(msg);
+                }
             }
             else
             {
@@ -458,19 +466,26 @@ namespace WindowsFormsApplication1
         {
             if ((iniciadoSession)&&(conectado))
             {
-                string Ninvitado = InvitarBox.Text;
-                if (string.IsNullOrWhiteSpace(Ninvitado))
+                if (InvitarBox.Text == nombreTextBox.Text)
                 {
-                    MessageBox.Show("Escriba un nombre de usuario que quiera invitar");
+                    MessageBox.Show("NO te puedes invitar a ti mismo!!!!");
                 }
                 else
                 {
-                    // Enviar mensaje de invitación al servidor
-                    string mensaje = "7/0/" + InvitarBox.Text;
-                    byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                    server.Send(msg);
+                    string Ninvitado = InvitarBox.Text;
+                    if (string.IsNullOrWhiteSpace(Ninvitado))
+                    {
+                        MessageBox.Show("Escriba un nombre de usuario que quiera invitar");
+                    }
+                    else
+                    {
+                        // Enviar mensaje de invitación al servidor
+                        string mensaje = "7/0/" + InvitarBox.Text;
+                        byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                        server.Send(msg);
 
-                    botonInciarSala.Enabled = true; // Habilitar el botón para empezar la partida
+                        botonInciarSala.Enabled = true; // Habilitar el botón para empezar la partida
+                    }
                 }
             }
             else

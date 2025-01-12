@@ -16,17 +16,19 @@ namespace WindowsFormsApplication1
         Socket server;
         string username;
         int idS;
+        string nombres;
 
         delegate void DelegadoParaEscribir(string mensaje);
 
       
 
-        public FormChat(Socket server, string username, int idS)
+        public FormChat(Socket server, string username, int idS,string nombres)
         {
             InitializeComponent();
             this.server = server;
             this.idS = idS;
             this.username = username;
+            this.nombres = nombres;
         }
         private void txtMensaje_TextChanged(object sender, EventArgs e)
         {
@@ -63,6 +65,7 @@ namespace WindowsFormsApplication1
         {
             txtnumForms.Text = idS.ToString();
             txtname.Text = username.ToString(); 
+            Listajugadores.Text = nombres.ToString();
         }
 
         private void button1_Click(object sender, EventArgs e)
