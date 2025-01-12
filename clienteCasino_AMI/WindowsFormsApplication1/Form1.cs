@@ -22,7 +22,7 @@ namespace WindowsFormsApplication1
         string invitadoActual = null; // Guarda el nombre del invitado actual
         bool salaPreparada = false; // Indica si la sala está lista para iniciar
         int idSala = -1;
-
+        bool EresInvitado = false;
         bool iniciadoSession = false;
 
         delegate void DelegadoParaEscribir(string mensaje);
@@ -202,6 +202,7 @@ namespace WindowsFormsApplication1
                         DialogResult RespuestaInv = MessageBox.Show(mensaje + "le han invitado a una partida.\n Quiere unirse?", "Respuesta invitacion", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (RespuestaInv == DialogResult.Yes)
                         {
+                            EresInvitado = true;
                             string mensg = "8/0/"+mensaje+"/SI";
                             // Enviamos al servidor la respuesta de la invitacion
                             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensg);
@@ -290,6 +291,7 @@ namespace WindowsFormsApplication1
                         
 
                     case 12: // Mensaje para iniciar sala
+                        EresInvitado = false;
                         int salaID = Convert.ToInt32(trozos[1]);
                         string nombres = trozos[2];
                         ThreadStart ts = delegate { AbrirChat(salaID,nombres); };
@@ -466,27 +468,35 @@ namespace WindowsFormsApplication1
         {
             if ((iniciadoSession)&&(conectado))
             {
-                if (InvitarBox.Text == nombreTextBox.Text)
+                if (!EresInvitado)
                 {
-                    MessageBox.Show("NO te puedes invitar a ti mismo!!!!");
-                }
-                else
-                {
-                    string Ninvitado = InvitarBox.Text;
-                    if (string.IsNullOrWhiteSpace(Ninvitado))
+                    if (InvitarBox.Text == nombreTextBox.Text)
                     {
-                        MessageBox.Show("Escriba un nombre de usuario que quiera invitar");
+                        MessageBox.Show("NO te puedes invitar a ti mismo!!!!");
                     }
                     else
                     {
-                        // Enviar mensaje de invitación al servidor
-                        string mensaje = "7/0/" + InvitarBox.Text;
-                        byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                        server.Send(msg);
+                        string Ninvitado = InvitarBox.Text;
+                        if (string.IsNullOrWhiteSpace(Ninvitado))
+                        {
+                            MessageBox.Show("Escriba un nombre de usuario que quiera invitar");
+                        }
+                        else
+                        {
+                            // Enviar mensaje de invitación al servidor
+                            string mensaje = "7/0/" + InvitarBox.Text;
+                            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                            server.Send(msg);
 
-                        botonInciarSala.Enabled = true; // Habilitar el botón para empezar la partida
+                            botonInciarSala.Enabled = true; // Habilitar el botón para empezar la partida
+                        }
                     }
                 }
+                else
+                {
+                    MessageBox.Show("Estas siendo invitado en una sala, espere a que el administrador de la sala acabe de crearla");
+                }
+                
             }
             else
             {

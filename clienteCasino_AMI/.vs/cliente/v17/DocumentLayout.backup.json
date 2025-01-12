@@ -1,22 +1,22 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\",
+  "WorkspaceRootPath": "C:\\Users\\Usuari\\Documentos\\Uni\\Q7\\SO\\SO_Casino_AMI\\clienteCasino_AMI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|c:\\users\\swaga\\documents\\github\\so_casino_ami\\clientecasino_ami\\windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|c:\\users\\usuari\\documentos\\uni\\q7\\so\\so_casino_ami\\clientecasino_ami\\windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|solutionrelative:windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|C:\\Users\\Usuari\\Documentos\\Uni\\Q7\\SO\\SO_Casino_AMI\\clienteCasino_AMI\\windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|solutionrelative:windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\windowsformsapplication1\\formchat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|solutionrelative:windowsformsapplication1\\formchat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|C:\\Users\\Usuari\\Documentos\\Uni\\Q7\\SO\\SO_Casino_AMI\\clienteCasino_AMI\\windowsformsapplication1\\formchat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|solutionrelative:windowsformsapplication1\\formchat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\windowsformsapplication1\\formchat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|solutionrelative:windowsformsapplication1\\formchat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|C:\\Users\\Usuari\\Documentos\\Uni\\Q7\\SO\\SO_Casino_AMI\\clienteCasino_AMI\\windowsformsapplication1\\formchat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|solutionrelative:windowsformsapplication1\\formchat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,39 +26,17 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 0,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "FormChat.cs",
-              "DocumentMoniker": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\FormChat.cs",
-              "RelativeDocumentMoniker": "WindowsFormsApplication1\\FormChat.cs",
-              "ToolTip": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\FormChat.cs",
-              "RelativeToolTip": "WindowsFormsApplication1\\FormChat.cs",
-              "ViewState": "AgIAADMAAAAAAAAAAAAgwEMAAAA1AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-26T15:30:36.318Z",
-              "IsPinned": true,
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
-            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Form1.cs",
-              "DocumentMoniker": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\Form1.cs",
+              "DocumentMoniker": "C:\\Users\\Usuari\\Documentos\\Uni\\Q7\\SO\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\Form1.cs",
               "RelativeDocumentMoniker": "WindowsFormsApplication1\\Form1.cs",
-              "ToolTip": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\Form1.cs",
+              "ToolTip": "C:\\Users\\Usuari\\Documentos\\Uni\\Q7\\SO\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\Form1.cs",
               "RelativeToolTip": "WindowsFormsApplication1\\Form1.cs",
-              "ViewState": "AgIAAH0AAAAAAAAAAAASwIoAAAAQAAAAAAAAAA==",
+              "ViewState": "AgIAAHABAAAAAAAAAAAQwPABAACEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-06T15:18:45.082Z",
               "EditorCaption": ""
@@ -67,9 +45,9 @@
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "Form1.cs [Dise\u00F1o]",
-              "DocumentMoniker": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\Form1.cs",
+              "DocumentMoniker": "C:\\Users\\Usuari\\Documentos\\Uni\\Q7\\SO\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\Form1.cs",
               "RelativeDocumentMoniker": "WindowsFormsApplication1\\Form1.cs",
-              "ToolTip": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\Form1.cs [Dise\u00F1o]",
+              "ToolTip": "C:\\Users\\Usuari\\Documentos\\Uni\\Q7\\SO\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\Form1.cs [Dise\u00F1o]",
               "RelativeToolTip": "WindowsFormsApplication1\\Form1.cs [Dise\u00F1o]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-06T15:17:47.523Z",
@@ -77,15 +55,26 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "FormChat.cs [Dise\u00F1o]",
-              "DocumentMoniker": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\FormChat.cs",
+              "DocumentMoniker": "C:\\Users\\Usuari\\Documentos\\Uni\\Q7\\SO\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\FormChat.cs",
               "RelativeDocumentMoniker": "WindowsFormsApplication1\\FormChat.cs",
               "ToolTip": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\FormChat.cs [Dise\u00F1o]",
-              "RelativeToolTip": "WindowsFormsApplication1\\FormChat.cs [Dise\u00F1o]",
+              "RelativeToolTip": "..\\..\\..\\..\\..\\..\\..\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\FormChat.cs [Dise\u00F1o]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-26T15:27:40.896Z",
-              "EditorCaption": " [Dise\u00F1o]"
+              "WhenOpened": "2024-12-26T15:27:40.896Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "FormChat.cs",
+              "DocumentMoniker": "C:\\Users\\Usuari\\Documentos\\Uni\\Q7\\SO\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\FormChat.cs",
+              "RelativeDocumentMoniker": "WindowsFormsApplication1\\FormChat.cs",
+              "ToolTip": "C:\\Users\\Usuari\\Documentos\\Uni\\Q7\\SO\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\FormChat.cs",
+              "RelativeToolTip": "WindowsFormsApplication1\\FormChat.cs",
+              "ViewState": "AgIAADMAAAAAAAAAAAAgwEMAAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-26T15:30:36.318Z"
             }
           ]
         }
