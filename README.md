@@ -1,4 +1,4 @@
-﻿# SO_Casino_AMI
+﻿# SO_JuegoChat_AMI
 Proyecto del grupo 01 de Sistemas Operativos (2024-25-Q2)"
 
 Version 5 generada por Arthur 
