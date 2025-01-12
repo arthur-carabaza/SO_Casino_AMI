@@ -29,8 +29,16 @@ namespace WindowsFormsApplication1
         delegate void DelegadoParaActualizarNombrePartida(string nombre);
         delegate void DelegadoParaEscribirInitados(string Inombre);
 
+        delegate void DelegadoParaAbrirBoton();
+
         List<FormChat> formularios = new List<FormChat> ();
         int[] IDSalas = new int[50];
+
+        private void DeshabilitarBoton()
+        {
+            botonInciarSala.Enabled = false; // Deshabilitar botón
+
+        }
 
 
         private void ActualizarNombrePartida(string nombre)
@@ -220,11 +228,13 @@ namespace WindowsFormsApplication1
                             else
                             {
                                 MessageBox.Show("La partida de cancela");
+                                idSala = Convert.ToInt32(trozos[2]); // Guardar ID de sala
                                 invitadoActual = null; // Resetear invitado
                                 string invitados = "Invitado: Ninguno";
                                 this.Invoke(new DelegadoParaEscribirInitados(EscribirInvitados), new object[] { invitados });
-                                botonInciarSala.Enabled = false; // Deshabilitar botón
                                 string mensg = "14/"+Convert.ToString(idSala);
+
+                                this.Invoke(new DelegadoParaAbrirBoton(DeshabilitarBoton), new object[] { }); //Apagamos el boton
                                 // Enviamos al servidor la respuesta de la invitacion
                                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensg);
                                 server.Send(msg);
@@ -251,14 +261,6 @@ namespace WindowsFormsApplication1
                         formularios[numforms].Recibir_Mensaje(mensaje);
                         break; 
                         
-                    case 11:
-
-                        //MessageBox.Show(trozos[2]);
-                        //CREAMOS THREAD PARA OCUPARSE DE ESTE FORMS
-                        //ThreadStart ts = delegate { AbrirChat(Convert.ToInt32(trozos[1])); };
-                        //Thread chatT = new Thread(ts);
-                        //chatT.Start();
-                        break;
 
                     case 12: // Mensaje para iniciar sala
                         int salaID = Convert.ToInt32(trozos[1]);

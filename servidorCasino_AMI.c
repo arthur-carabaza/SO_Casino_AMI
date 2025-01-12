@@ -58,6 +58,25 @@ int idSalaActual = -1;
 ////_________________________________________________________________________________
 
 //METODOS GENERALES PARA EL CODIGO Poner,Quitar,Dar Conectados, buscar sockets etc...
+
+void BorrarTablas(MYSQL *conn) {
+	const char *queries[] = {
+		"SET FOREIGN_KEY_CHECKS = 0;",
+			"TRUNCATE TABLE Participantes;",
+			"TRUNCATE TABLE Mensajes;",
+			"TRUNCATE TABLE Salas;",
+			"SET FOREIGN_KEY_CHECKS = 1;"
+	};
+	
+	for (int i = 0; i < 5; i++) {
+		if (mysql_query(conn, queries[i])) {
+			printf("Error ejecutando query: %s\n", mysql_error(conn));
+		}
+	}
+	printf("Contenido de las tablas borrado (excepto Jugadores).\n");
+}
+
+
 int BuscarSalaPorSocket(ListaSala *listaSalas, int socket) {
 	//Devuelve el indice de la sala en la que se encuentra el usuario cuyo socket se pasa como parametro
 	//Devuelve -1 si no encuentra la sala
@@ -68,7 +87,7 @@ int BuscarSalaPorSocket(ListaSala *listaSalas, int socket) {
 			}
 		}
 	}
-	return -1; // No se encontr la sala
+	return -1; // No se encontro la sala
 }
 
 int PonConectado(ListaConectados *lista, char nombre[20], int socket) {
@@ -98,20 +117,22 @@ int PonSala(ListaSala *lista, Sala nuevaSala) {
 	}
 }
 
-int QuitaSala(ListaSalas *lista, int idSala){
+int QuitaSala(ListaSala *lista, int idSala){
+	//Le pasamos el idSala y nos quita la sala cuyo idS hemos introducido de la lista de salas
 	
 	pthread_mutex_lock(&mutex);
-	for(int i =idSalas-1; i<lista->num-1;i++){
+	for(int i =idSala-1; i<lista->num-1;i++){
 		lista->salas[i]=lista->salas[i+1];
 	} 
 	lista->num--;
-	pthread_mute_unlock(&mutex);
+	pthread_mutex_unlock(&mutex);
+	return 0;
 }
 
 int PonSalaDB(MYSQL* conn, Sala* nuevaSala, ListaConectados* listaConectados, int* jugadores, int numJugadores) {
 	// Insertar la sala en la tabla Salas
 	char query[256];
-	sprintf(query, "INSERT INTO Salas () VALUES ()"; //La fecha se crea automaticameumnte
+	sprintf(query, "INSERT INTO Salas () VALUES ()"); //La fecha se crea automaticameumnte
 	if (mysql_query(conn, query)) {
 		printf("Error al insertar sala en la base de datos: %s\n", mysql_error(conn));
 		return -1;
@@ -244,6 +265,7 @@ void* AtenderClientes(void* socket)
 		mysql_close(conn);
 		exit(1);
 	}
+		
 
 	//Variables para comprobar que la persona tenga la session inciada para hacer peticiones
 	int session_iniciada = 0;
@@ -276,7 +298,7 @@ void* AtenderClientes(void* socket)
 		char nombreInvitado[20];
 
 		//LAS PETICIONES 0,6 y 12 NO NECESTAN EL NOMBRE PARA FUNCIONAR
-		if ((codigo != 0)&&(codigo !=6)&&(codigo !=12))
+		if ((codigo != 0)&&(codigo !=6)&&(codigo !=12)&&(codigo!=14))
 		{
 			//Obtenemos el numforms
 			p = strtok(NULL, "/");
@@ -389,12 +411,8 @@ void* AtenderClientes(void* socket)
 				if (codigo == 3)
 				{
 					char query[256];
-					sprintf(query, "SELECT DISTINCT j2.usuario"
-						"FROM Participantes p1 "
-						"JOIN Participantes p2 ON p1.sala_id = p2.sala_id AND p1.usuario_id != p2.usuario_id "
-						"JOIN Jugadores j2 ON p2.usuario_id = j2.id "
-						"WHERE p1.usuario_id = (SELECT id FROM Jugadores WHERE usuario = '%s')", nombre);
-
+					sprintf(query, "SELECT DISTINCT J.usuario FROM Jugadores J JOIN Participantes P ON J.id = P.usuario_id JOIN Salas S ON P.sala_id = S.id WHERE S.id IN (SELECT sala_id FROM Participantes WHERE usuario_id = (SELECT id FROM Jugadores WHERE usuario = '%s')) AND J.usuario != '%s';", nombre, nombre);
+					
 					//CONTROL DE ERROR POR SI DA ERROR LA QUERY
 					err = mysql_query(conn, query);
 					if (err != 0) {
@@ -429,7 +447,7 @@ void* AtenderClientes(void* socket)
 				//QUERY DE CUANTOS MENSAJES HE ENVIADO A UN DETERMINADO DESTINATARIO 4/0/nombre/destinatarip
 				else if (codigo == 4) { 
 					//Obtenemos el nombre del destinatario
-					p = strtok = (NULL, "/");
+					p = strtok(NULL, "/");
 					char destinatario[20];
 					strcpy(destinatario, p);
 
@@ -480,7 +498,7 @@ void* AtenderClientes(void* socket)
 					char fecha_fin[20];
 					strcpy(fecha_fin, p);
 
-					/ Query para obtener las salas y sus participantes
+					// Query para obtener las salas y sus participantes
 						char query[512];
 					sprintf(query,
 						"SELECT s.id AS sala_id, GROUP_CONCAT(j.usuario) AS participantes "
@@ -559,14 +577,12 @@ void* AtenderClientes(void* socket)
 							sprintf(query, "INSERT INTO Salas () VALUES ()"); // La fecha se genera automáticamente
 							if (mysql_query(conn, query)) {
 								printf("Error al insertar sala en la base de datos: %s\n", mysql_error(conn));
-								return -1;
 							}
 
 							//Añadimos el primer jugador a la base de datos
-							sprintf(query, "INSERT INTO Participantes (sala_id, usuario_id) SELECT %d, id FROM Jugadores WHERE usuario='%s'", idSala, usuario_logueado);)
+							sprintf(query, "INSERT INTO Participantes (sala_id, usuario_id) SELECT %d, id FROM Jugadores WHERE usuario='%s'", idSalaActual, usuario_logueado);
 							if (mysql_query(conn, query)) {
 								printf("Error al insertar participante en la base de datos: %s\n", mysql_error(conn));
-								return -1;
 							}
 						}
 
@@ -587,7 +603,7 @@ void* AtenderClientes(void* socket)
 				}
 				
 				//EL CLIENTE HA RECIBIDO UNA PETICION 7/ Y A CONTESTADO A LA INVITACION GENERANDO UNA PETICION
-				// 8/0/nomInvitador/SI o NO ; SI ES SI SE LE AÑADE A LA SALA 
+				// 8/0/nomInvitador/SI o NO ; SI ES SI SE LE ANADE A LA SALA 
 				// SE GENERA UNA RESPUESTA 8/SI o NO/idSala SI ES UNA SIMPLE NOTIFICACION, SI ES NO SE LE PREGUNTA AL INVITADOR POR EL FUTURO DE LA SALA
 				else if (codigo == 8) { 
 					pthread_mutex_lock(&mutex); 
@@ -598,30 +614,29 @@ void* AtenderClientes(void* socket)
 						char respuestaBool[20]; 
 						p = strtok(NULL, "/"); 
 
-						
-						
 						if (strcmp(p, "SI") == 0) {
 							Sala* salaActual = &ListaSalas.salas[idSalaActual-1];
 							if (salaActual->numSockets < MAX_CLIENTES) {
 								salaActual->sockets[salaActual->numSockets] = sock_conn;
 								salaActual->numSockets++;
 								sprintf(respuestaBool, "8/%s/%d", p, idSalaActual);
-								write(sock_conn, respuestaBool, strlen(respuestaBool));
-
+								printf("Respuesta: %s\n", respuestaBool); 
+								write(socketInvitador, respuestaBool, strlen(respuestaBool));
+								
+								char query[256];
 								//Añadimos el siguiente jugador a la base de datos
-								sprintf(query, "INSERT INTO Participantes (sala_id, usuario_id) SELECT %d, id FROM Jugadores WHERE usuario='%s'", idSala, nombre);)
+								sprintf(query, "INSERT INTO Participantes (sala_id, usuario_id) SELECT %d, id FROM Jugadores WHERE usuario='%s'", idSalaActual, usuario_logueado);
 								if (mysql_query(conn, query)) {
 									printf("Error al insertar sala en la base de datos: %s\n", mysql_error(conn));
-									return -1;
 								}
 							}
 							else {
 								sprintf(respuesta, "9/Sala llena");
 							}
 						}
-						else if (strcmp(respuestaBool, "8/NO") == 0) { 
-							p = strtok(NULL, "/"); 
-							sprintf(respuestaBool, "8/%s", p); 
+						else if (strcmp(p, "NO") == 0) { 
+							
+							sprintf(respuestaBool, "8/%s/%d",p,idSalaActual); 
 							printf("Respuesta: %s\n", respuestaBool); 
 						
 							write(socketInvitador, respuestaBool, strlen(respuestaBool)); 
@@ -754,14 +769,18 @@ void* AtenderClientes(void* socket)
 				sprintf(respuesta, "13/Baja exitosa");
 			}
 		}
+		
+		//_________________________________________________________________________________
+		
 		else if (codigo == 14) { // Eliminar sala manualmente
 			
 			
 			//Obtenemos el IDsala
 			p = strtok(NULL, "/");
+			
 			int idSala = atoi(p); // ID de la sala
-			int i = QuitaSala(ListaSala,idSala);
-			printf("Se ha eliminado la sala";
+			int i = QuitaSala(&ListaSalas,idSala);
+			printf("Se ha eliminado la sala");
 			sprintf(respuesta, "9/Se ha eliminado la sala, ya puede volver a invitar a los jugadores");
 		}
 
@@ -868,5 +887,6 @@ int main(int argc, char *argv[])
 		pthread_create(&thread, NULL, AtenderClientes, &sockets[i]);
 		i++;
 	}
+		
 	return 0;
 }

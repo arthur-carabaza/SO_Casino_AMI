@@ -23,6 +23,8 @@ namespace WindowsFormsApplication1
             this.nombreTextBox = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.query = new System.Windows.Forms.TextBox();
             this.dardebaja = new System.Windows.Forms.Button();
             this.botonInciarSala = new System.Windows.Forms.Button();
             this.labelInvitado = new System.Windows.Forms.Label();
@@ -39,8 +41,6 @@ namespace WindowsFormsApplication1
             this.desconectar = new System.Windows.Forms.Button();
             this.NombrePartida = new System.Windows.Forms.Label();
             this.ListaConectados = new System.Windows.Forms.Label();
-            this.query = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -109,15 +109,36 @@ namespace WindowsFormsApplication1
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "SO 2024-2025";
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
+            this.label3.ForeColor = System.Drawing.Color.White;
+            this.label3.Location = new System.Drawing.Point(481, 27);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(407, 37);
+            this.label3.TabIndex = 20;
+            this.label3.Text = "Invita a alguien para empezar!";
+            // 
+            // query
+            // 
+            this.query.Font = new System.Drawing.Font("Segoe UI", 12F);
+            this.query.Location = new System.Drawing.Point(62, 305);
+            this.query.Margin = new System.Windows.Forms.Padding(4);
+            this.query.Name = "query";
+            this.query.Size = new System.Drawing.Size(217, 34);
+            this.query.TabIndex = 19;
+            // 
             // dardebaja
             // 
             this.dardebaja.BackColor = System.Drawing.Color.DimGray;
             this.dardebaja.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.dardebaja.ForeColor = System.Drawing.Color.White;
-            this.dardebaja.Location = new System.Drawing.Point(301, 135);
+            this.dardebaja.Location = new System.Drawing.Point(330, 135);
             this.dardebaja.Margin = new System.Windows.Forms.Padding(4);
             this.dardebaja.Name = "dardebaja";
-            this.dardebaja.Size = new System.Drawing.Size(138, 41);
+            this.dardebaja.Size = new System.Drawing.Size(154, 41);
             this.dardebaja.TabIndex = 18;
             this.dardebaja.Text = "Darse de Baja";
             this.dardebaja.UseVisualStyleBackColor = false;
@@ -179,10 +200,10 @@ namespace WindowsFormsApplication1
             this.registrarse.BackColor = System.Drawing.Color.DimGray;
             this.registrarse.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.registrarse.ForeColor = System.Drawing.Color.White;
-            this.registrarse.Location = new System.Drawing.Point(155, 135);
+            this.registrarse.Location = new System.Drawing.Point(171, 135);
             this.registrarse.Margin = new System.Windows.Forms.Padding(4);
             this.registrarse.Name = "registrarse";
-            this.registrarse.Size = new System.Drawing.Size(138, 41);
+            this.registrarse.Size = new System.Drawing.Size(151, 41);
             this.registrarse.TabIndex = 14;
             this.registrarse.Text = "Registrarse";
             this.registrarse.UseVisualStyleBackColor = false;
@@ -196,7 +217,7 @@ namespace WindowsFormsApplication1
             this.login.Location = new System.Drawing.Point(8, 135);
             this.login.Margin = new System.Windows.Forms.Padding(4);
             this.login.Name = "login";
-            this.login.Size = new System.Drawing.Size(138, 41);
+            this.login.Size = new System.Drawing.Size(155, 41);
             this.login.TabIndex = 13;
             this.login.Text = "Iniciar Sesión";
             this.login.UseVisualStyleBackColor = false;
@@ -209,10 +230,10 @@ namespace WindowsFormsApplication1
             this.Cartas.Location = new System.Drawing.Point(155, 254);
             this.Cartas.Margin = new System.Windows.Forms.Padding(4);
             this.Cartas.Name = "Cartas";
-            this.Cartas.Size = new System.Drawing.Size(167, 27);
+            this.Cartas.Size = new System.Drawing.Size(355, 27);
             this.Cartas.TabIndex = 12;
             this.Cartas.TabStop = true;
-            this.Cartas.Text = "Qué cartas tengo";
+            this.Cartas.Text = "Que salas se han creado en este tiempo ?";
             this.Cartas.UseVisualStyleBackColor = true;
             // 
             // Victorias
@@ -222,10 +243,10 @@ namespace WindowsFormsApplication1
             this.Victorias.Location = new System.Drawing.Point(155, 226);
             this.Victorias.Margin = new System.Windows.Forms.Padding(4);
             this.Victorias.Name = "Victorias";
-            this.Victorias.Size = new System.Drawing.Size(254, 27);
+            this.Victorias.Size = new System.Drawing.Size(264, 27);
             this.Victorias.TabIndex = 11;
             this.Victorias.TabStop = true;
-            this.Victorias.Text = "Dime cuántas victorias llevo";
+            this.Victorias.Text = "Cuantos mensajes he enviado";
             this.Victorias.UseVisualStyleBackColor = true;
             // 
             // label1
@@ -257,10 +278,10 @@ namespace WindowsFormsApplication1
             this.Dinero.Location = new System.Drawing.Point(155, 197);
             this.Dinero.Margin = new System.Windows.Forms.Padding(4);
             this.Dinero.Name = "Dinero";
-            this.Dinero.Size = new System.Drawing.Size(197, 27);
+            this.Dinero.Size = new System.Drawing.Size(265, 27);
             this.Dinero.TabIndex = 10;
             this.Dinero.TabStop = true;
-            this.Dinero.Text = "Cuánto dinero tengo";
+            this.Dinero.Text = "Con quien he estado en sala ?";
             this.Dinero.UseVisualStyleBackColor = true;
             // 
             // conectar
@@ -314,27 +335,6 @@ namespace WindowsFormsApplication1
             this.ListaConectados.Size = new System.Drawing.Size(360, 49);
             this.ListaConectados.TabIndex = 11;
             this.ListaConectados.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // query
-            // 
-            this.query.Font = new System.Drawing.Font("Segoe UI", 12F);
-            this.query.Location = new System.Drawing.Point(62, 305);
-            this.query.Margin = new System.Windows.Forms.Padding(4);
-            this.query.Name = "query";
-            this.query.Size = new System.Drawing.Size(217, 34);
-            this.query.TabIndex = 19;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
-            this.label3.ForeColor = System.Drawing.Color.White;
-            this.label3.Location = new System.Drawing.Point(481, 27);
-            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(407, 37);
-            this.label3.TabIndex = 20;
-            this.label3.Text = "Invita a alguien para empezar!";
             // 
             // Form1
             // 
