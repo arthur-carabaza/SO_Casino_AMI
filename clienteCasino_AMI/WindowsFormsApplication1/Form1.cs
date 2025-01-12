@@ -19,25 +19,82 @@ namespace WindowsFormsApplication1
 
         bool conectado = false;
 
+        string invitadoActual = null; // Guarda el nombre del invitado actual
+        bool salaPreparada = false; // Indica si la sala está lista para iniciar
+        int idSala = -1;
+
+        bool iniciadoSession = false;
+
         delegate void DelegadoParaEscribir(string mensaje);
         delegate void DelegadoParaActualizarLista(string mensaje);
         delegate void DelegadoParaMostrarMensaje(string mensaje);
         delegate void DelegadoParaActualizarNombrePartida(string nombre);
+        delegate void DelegadoParaEscribirInitados(string Inombre);
+
+        delegate void DelegadoParaAbrirBoton();
+        delegate void DelegadoParaBorrar();
+
+        List<FormChat> formularios = new List<FormChat> ();
+        int[] IDSalas = new int[50];
+
+        private void DeshabilitarBoton()
+        {
+            botonInciarSala.Enabled = false; // Deshabilitar botón
+        }
+
+        private void Borrar()
+        {
+            InvitarBox.Text = null; // Limpiar la caja de texto
+        }
+
 
         private void ActualizarNombrePartida(string nombre)
         {
             NombrePartida.Text = nombre;
         }
 
-
-        private void EscribirEnChatbox(string mensaje)
+        private int DameFormsPorID (int ID)
         {
-            Chatbox.AppendText(mensaje + Environment.NewLine);
+            //ESTa FUNCION DEVULVE lA POSICION EN EL CUAL ESTA EL VECTOR DANDO SU ID DE SALA
+            int i=0;
+            int numforms = 0;
+            while (i < IDSalas.Length)
+            {
+                if (ID == IDSalas[i])
+                {
+                    i = IDSalas.Length;
+                }
+                else
+                    numforms++;
+
+                if (numforms > IDSalas.Length)
+                {
+                    MessageBox.Show("Error");
+                    break;
+                }
+                i++;
+            }
+            return numforms;
+        }
+
+        private void AbrirChat(int ID)
+        {
+            int cont = formularios.Count;
+            FormChat chatform = new FormChat(server,nombreTextBox.Text,ID);
+            formularios.Add(chatform);
+            IDSalas[cont] = (ID);
+            chatform.ShowDialog();
+            
         }
 
         private void ActualizarListaConectados(string mensaje)
         {
             ListaConectados.Text = mensaje;
+        }
+        private void EscribirInvitados(string Inombre)
+        {
+            labelInvitado.Text = Inombre;
+
         }
 
         private void MostrarMensaje(string mensaje)
@@ -79,53 +136,82 @@ namespace WindowsFormsApplication1
                 int bytesRecibidos = server.Receive(msg2); 
                 string mensajeCompleto = Encoding.ASCII.GetString(msg2, 0, bytesRecibidos); 
                 string[] trozos = mensajeCompleto.Split('/');
-                int codigo = Convert.ToInt32(trozos[0]); 
-                string mensaje = trozos.Length > 1 ? trozos[1].Split('\0')[0] : string.Empty; 
+                int codigo = Convert.ToInt32(trozos[0]);
+                string mensaje; 
                 string nombre = nombreTextBox.Text;
+
+                //Nombre del formulario al que va destinado la respuesta
 
 
                 switch (codigo)
                 {
-                    case 1: //Respuesta a iniciar sesión
-                        this.Invoke(new DelegadoParaMostrarMensaje(MostrarMensaje), new object[] { mensaje });
-                        this.Invoke(new DelegadoParaActualizarNombrePartida(ActualizarNombrePartida), new object[] { nombre });
-                    break;
+                    case 1: //Respuesta a iniciar sesión ; Se encarga el formulario principal 
+
+                        //Aqui obtenemos el numero al cual va dirigido la respuesta
+                        mensaje = trozos[2].Split('\0')[0];
+                        if (trozos[1] == "SI")
+                        {
+                            this.Invoke(new DelegadoParaMostrarMensaje(MostrarMensaje), new object[] { mensaje });
+                            this.Invoke(new DelegadoParaActualizarNombrePartida(ActualizarNombrePartida), new object[] { nombre });
+                            iniciadoSession = true;
+
+                        }
+                        else if (trozos[1] == "NO")
+                        {
+                            this.Invoke(new DelegadoParaMostrarMensaje(MostrarMensaje), new object[] { mensaje });
+
+                        }
 
 
-                    case 2: //Respuesta a registro
+                        break;
+
+
+                    case 2: //Respuesta a registro ; Se encarga el formulario principal 
+
+                        //Aqui obtenemos el numero al cual va dirigido la respuesta
+                        mensaje = trozos[1].Split('\0')[0];
+
                         MessageBox.Show(mensaje);
                         break;
 
-                    case 3: //respuesta a query de cuanto dinero
-                        MessageBox.Show(mensaje);
+                    case 3: //RESULTADO QUERRY CON QUIEN HE ESTADO EN PARTIDA: 3/Juan,Carlos,Miguel
+                        mensaje = trozos[1].Split('\0')[0];
+                        MessageBox.Show("Has estado en partida con" + mensaje);
                         break;
 
-                    case 4: //respuesta a query cuantas visctoria 
-                        MessageBox.Show(mensaje);
+                    case 4: //RESULTADO QUERRY CUANTOS MENSAJES HE ENVIADO A...: 4/4
+                        mensaje = trozos[1].Split('\0')[0];
+                        MessageBox.Show("Has enviado " + mensaje + "mensajes");
                         break;
 
-                    case 5: //Respuesta a query cuantas victorias 
+                    case 5: //RESULTADO QUERRY QUE SALAS SE HAN CREADO DESDE X tiempo : 5/ Sala1; Juan,Miguel | Sala2: Juan,Alvaro | Sala3: Alvaro,Pablo
+                        mensaje = trozos[1].Split('\0')[0];
                         MessageBox.Show(mensaje);
                         break;
 
                     case 6: //Notificacion de conectados
 
+                        //NO SE SI PONER AQUI LO DEL CODIGO, SE SUPONE QUE NO HAY QUE PONERLO
+                        mensaje = trozos[1].Split('\0')[0];
                         this.Invoke(new DelegadoParaActualizarLista(ActualizarListaConectados), new object[] { mensaje }); 
                         break;
 
                     case 7: //Notificacion de invitacion
 
+                        mensaje = trozos[1].Split('\0')[0];
                         DialogResult RespuestaInv = MessageBox.Show(mensaje + "le han invitado a una partida.\n Quiere unirse?", "Respuesta invitacion", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (RespuestaInv == DialogResult.Yes)
                         {
-                            string mensg = "8/"+mensaje+"/SI";
+                            string mensg = "8/0/"+mensaje+"/SI";
                             // Enviamos al servidor la respuesta de la invitacion
                             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensg);
                             server.Send(msg);
+
+                            
                         }
                         else
                         {
-                            string mensg = "8/" + mensaje + "/NO";
+                            string mensg = "8/0/" + mensaje + "/NO";
                             // Enviamos al servidor la respuesta de la invitacion
                             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensg);
                             server.Send(msg);
@@ -133,42 +219,98 @@ namespace WindowsFormsApplication1
                         break;
 
                     case 8:
-                        if(mensaje == "SI")
+
+                        mensaje = trozos[1].Split('\0')[0];
+                        if (mensaje == "SI")
                         {
                             MessageBox.Show("Su invitación ha sido aceptada");
+                            idSala = Convert.ToInt32(trozos[2]); // Guardar ID de sala
+
+                            string Ninvitado = InvitarBox.Text;
+                            string Linvitados;
+                            // Agregar el nombre del invitado a la lista
+                            if (salaPreparada)
+                            {
+                                Linvitados = labelInvitado.Text + "/" + Ninvitado;
+                                this.Invoke(new DelegadoParaEscribirInitados(EscribirInvitados), new object[] { Linvitados });
+                            }
+                            else
+                            {
+                                Linvitados = "Invitados: " + Ninvitado;
+                                this.Invoke(new DelegadoParaEscribirInitados(EscribirInvitados), new object[] { Linvitados });
+                            }
+
+                            salaPreparada = true; // Marcar sala como lista
+                            this.Invoke(new DelegadoParaBorrar(Borrar), new object[] {});
                         }
                         else
                         {
-                            DialogResult result = MessageBox.Show("Su invitación ha sido rechazada, quiere iniciar igualmente la partida?","invitacion",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
+                            DialogResult result = MessageBox.Show("Su invitación ha sido rechazada, quiere poder iniciar igualmente la partida?","invitacion",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
                             if (result == DialogResult.Yes)
                             {
-                                MessageBox.Show("La partida se iniciará");
+                                salaPreparada = true; //Marcar sala como preparada
+                                idSala = Convert.ToInt32(trozos[2]); // Guardar ID de sala
+
                             }
                             else
                             {
                                 MessageBox.Show("La partida de cancela");
+                                idSala = Convert.ToInt32(trozos[2]); // Guardar ID de sala
+                                invitadoActual = null; // Resetear invitado
+                                string invitados = "Invitado: Ninguno";
+                                this.Invoke(new DelegadoParaEscribirInitados(EscribirInvitados), new object[] { invitados });
+                                string mensg = "14/"+Convert.ToString(idSala);
+
+                                this.Invoke(new DelegadoParaAbrirBoton(DeshabilitarBoton), new object[] { }); //Apagamos el boton
+                                // Enviamos al servidor la respuesta de la invitacion
+                                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensg);
+                                server.Send(msg);
                             }
 
                         }
                         break;
 
                     case 9:  //Manejar mensajes de creacion de partidas en general 
+                        mensaje = trozos[1].Split('\0')[0];
                         this.Invoke(new DelegadoParaMostrarMensaje(MostrarMensaje), new object[] { mensaje }); 
                         break;
 
-                    case 10: //Mensaje de chat
-                        this.Invoke(new DelegadoParaEscribir(EscribirEnChatbox), new object[] { mensaje }); 
+                    case 10: // Mensaje de chat recibido ; SE ENCARGAN FORMS SECUNDARIOS
+                        //Aqui obtenemos el numero al cual va dirigido la respuesta
+                        int IDsala = Convert.ToInt32(trozos[1]);
+                        mensaje = trozos[2].Split('\0')[0];
+                        int numforms = 0;
+
+                        numforms = DameFormsPorID(IDsala);
+
+                        
+
+                        formularios[numforms].Recibir_Mensaje(mensaje);
+                        break; 
+                        
+
+                    case 12: // Mensaje para iniciar sala
+                        int salaID = Convert.ToInt32(trozos[1]);
+                        ThreadStart ts = delegate { AbrirChat(salaID); };
+                        Thread chatT = new Thread(ts);
+                        chatT.Start();
+                        break;
+
+                    case 13:
+                        //Aqui obtenemos el numero al cual va dirigido la respuesta
+                        mensaje = trozos[1].Split('\0')[0];
+
+                        MessageBox.Show(mensaje);
                         break;
                 }
             }
         }
-
         private void conectar_Click(object sender, EventArgs e)
         {
             //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
             //al que deseamos conectarnos
-            IPAddress direc = IPAddress.Parse("10.4.119.5");
-            IPEndPoint ipep = new IPEndPoint(direc, 50000);
+            IPAddress direc = IPAddress.Parse("192.168.56.101");
+            IPEndPoint ipep = new IPEndPoint(direc, 50001);
 
 
             //Creamos el socket 
@@ -199,40 +341,145 @@ namespace WindowsFormsApplication1
 
         private void button2_Click(object sender, EventArgs e)
         {
-            
-            if (Dinero.Checked)
+            if ((iniciadoSession)&&(conectado))
             {
-                //Quiere saber cuanto dinero tiene
-                string mensaje = "3/" + nombreTextBox.Text;
-                try
+
+                if (query3.Checked)
                 {
+                    //Quiere saber cuanto dinero tiene
+                    string mensaje = "3/0/" + nombreTextBox.Text;
+                    try
+                    {
+                        // Enviamos al servidor el nombre tecleado
+                        byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                        server.Send(msg);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error al realizar la peticion, asegurese de estar conectado");
+                    }
+                }
+                else if (query4.Checked)
+                {
+                    //Quiere saber cuantas victoras tengo
+                    string mensaje = "4/0/" + nombreTextBox.Text + "/" + query.Text;
                     // Enviamos al servidor el nombre tecleado
                     byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                     server.Send(msg);
                 }
-                catch (Exception ex)
+                else
                 {
-                    MessageBox.Show("Error al realizar la peticion, asegurese de estar conectado");
+                    //Quiere saber que cartas tengo
+                    string mensaje = "5/0/" + nombreTextBox.Text + "/" + query.Text;
+                    // Enviamos al servidor el nombre tecleado
+                    byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                    server.Send(msg);
                 }
             }
-            else if (Victorias.Checked)
+
+            else
             {
-                //Quiere saber cuantas victoras tengo
-                string mensaje = "4/" + nombreTextBox.Text;
-                // Enviamos al servidor el nombre tecleado
+                MessageBox.Show("No has iniciado session o no estas conectado!");
+            }
+        }
+        private void desconectar_Click(object sender, EventArgs e)
+        {
+            if (conectado)
+            {
+                //Mensaje de desconexion
+                string mensaje = "0/";
+
+                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
+
+                //Nos deconectamos
+                conectado = false;
+                iniciadoSession = false;
+                atender.Abort();
+                this.Invalidate(new Rectangle(20, 20, 40, 40)); //Redibujar el formulario para actualizar el circulo
+                this.Update();
+
+                ListaConectados.Text = null;
+                NombrePartida.Text = null;
+                nombreTextBox.Text = null;
+                Password.Text = null;
+
+                server.Shutdown(SocketShutdown.Both);
+                server.Close();
+            }
+            else
+            {
+                MessageBox.Show("Ya estas desconectado!!!!");
+            }
+        }
+
+        private void login_Click(object sender, EventArgs e)
+        {
+            if (conectado)
+            {
+                if (iniciadoSession)
+                {
+                    //Quiere iniciar session
+                    string mensaje = "1/0/" + nombreTextBox.Text + "/" + Password.Text;
+                    // Enviamos al servidor el nombre tecleado y la contraseña
+                    byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                    server.Send(msg);
+                }
+                else
+                {
+                    MessageBox.Show("Ya has iniciado session!!");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Conectate Primero!!!");
+            }
+        }
+        private void registrarse_Click(object sender, EventArgs e)
+        {
+            if (conectado)
+            {
+                //Quiere registrarse
+                string mensaje = "2/0/" + nombreTextBox.Text + "/" + Password.Text;
+                // Enviamos al servidor el nombre tecleado y la contraseña
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
             }
             else
             {
-                //Quiere saber que cartas tengo
-                string mensaje = "5/" + nombreTextBox.Text;
-                // Enviamos al servidor el nombre tecleado
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                server.Send(msg);
+                MessageBox.Show("Conectate Primero!!!!!");
             }
         }
-        private void desconectar_Click(object sender, EventArgs e)
+        private void label4_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void InvitarButton_Click(object sender, EventArgs e)
+        {
+            if ((iniciadoSession)&&(conectado))
+            {
+                string Ninvitado = InvitarBox.Text;
+                if (string.IsNullOrWhiteSpace(Ninvitado))
+                {
+                    MessageBox.Show("Escriba un nombre de usuario que quiera invitar");
+                }
+                else
+                {
+                    // Enviar mensaje de invitación al servidor
+                    string mensaje = "7/0/" + InvitarBox.Text;
+                    byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                    server.Send(msg);
+
+                    botonInciarSala.Enabled = true; // Habilitar el botón para empezar la partida
+                }
+            }
+            else
+            {
+                MessageBox.Show("NO has iniciado session o no estas conectado");
+            }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             //Mensaje de desconexion
             string mensaje = "0/";
@@ -243,7 +490,7 @@ namespace WindowsFormsApplication1
             //Nos deconectamos
             conectado = false;
             atender.Abort();
-            this.Invalidate(new Rectangle(20,20,40,40)); //Redibujar el formulario para actualizar el circulo
+            this.Invalidate(new Rectangle(20, 20, 40, 40)); //Redibujar el formulario para actualizar el circulo
             this.Update();
 
             ListaConectados.Text = null;
@@ -255,55 +502,52 @@ namespace WindowsFormsApplication1
             server.Close();
         }
 
-        private void login_Click(object sender, EventArgs e)
+        private void botonInciarSala_Click(object sender, EventArgs e)
         {
-            //Quiere iniciar session
-            string mensaje = "1/" + nombreTextBox.Text + "/" + Password.Text;
-            // Enviamos al servidor el nombre tecleado y la contraseña
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-            server.Send(msg);          
-        }
-        private void registrarse_Click(object sender, EventArgs e)
-        {
-            //Quiere registrarse
-            string mensaje = "2/" + nombreTextBox.Text + "/" + Password.Text;
-            // Enviamos al servidor el nombre tecleado y la contraseña
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-            server.Send(msg);
-        }
-        private void label4_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void InvitarButton_Click(object sender, EventArgs e)
-        {
-            if (InvitarBox.Text == null)
+            if (salaPreparada && idSala != -1)
             {
-                MessageBox.Show("Escriba un nombre de usuario que quiera invitar");
-            }
-            else
-            {
-                string NombreInvitado = InvitarBox.Text;
-                string mensaje = "7/" + NombreInvitado;
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                // Enviar mensaje al servidor para iniciar la sala
+                string mensaje = "12/" + idSala;
+                byte[] msg = Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
-            }
 
-            InvitarBox.Text = null;
-        }
-
-        private void EnviarMensaje_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(MensajeChat.Text)) { 
-                MessageBox.Show("Escriba un mensaje antes de enviarlo");
+                botonInciarSala.Enabled = false; // Desactivar el botón
+                salaPreparada = false; // Resetear estado
+                labelInvitado.Text = "Invitado: Ninguno";
             }
             else
             {
-                string mensaje = "10/" + nombreTextBox.Text + "/" + MensajeChat.Text; 
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje); 
-                server.Send(msg); 
-                MensajeChat.Text = ""; // Limpiar el campo de texto después de enviar el mensaje
+                MessageBox.Show("La sala no está lista para iniciar.");
             }
+        }
+
+        private void dardebaja_Click(object sender, EventArgs e)
+        {
+            if (conectado)
+            {
+                if (!iniciadoSession)
+                {
+                    //Quiere Darse de Baja
+                    string mensaje = "13/0/" + nombreTextBox.Text;
+                    // Enviamos al servidor el nombre tecleado y la contraseña
+                    byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                    server.Send(msg);
+                }
+                else
+                {
+                    MessageBox.Show("Porfavor realiza la operacion de darse de baja sin estar haver inicado session");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Tienes que conectarte primero!");
+            }
+        }
+
+        private void help_Click(object sender, EventArgs e)
+        {
+            FormHelp help = new FormHelp();
+            help.ShowDialog(); 
         }
     }
 }
