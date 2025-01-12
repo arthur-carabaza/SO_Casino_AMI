@@ -3,10 +3,7 @@
   "WorkspaceRootPath": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\servidorCasino_AMI.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|c:\\users\\swaga\\documents\\github\\so_casino_ami\\clientecasino_ami\\windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|solutionrelative:windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -42,19 +39,6 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "servidorCasino_AMI.c",
-              "DocumentMoniker": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\servidorCasino_AMI.c",
-              "RelativeDocumentMoniker": "..\\servidorCasino_AMI.c",
-              "ToolTip": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\servidorCasino_AMI.c",
-              "RelativeToolTip": "..\\servidorCasino_AMI.c",
-              "ViewState": "AgIAAPUAAAAAAAAAAAAAAAkBAAAsAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-01-12T19:54:18.327Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
               "Title": "Form1.cs",
               "DocumentMoniker": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\Form1.cs",
               "RelativeDocumentMoniker": "WindowsFormsApplication1\\Form1.cs",
@@ -67,7 +51,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "Form1.cs [Dise\u00F1o]",
               "DocumentMoniker": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\Form1.cs",
               "RelativeDocumentMoniker": "WindowsFormsApplication1\\Form1.cs",
@@ -79,19 +63,18 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 3,
               "Title": "FormChat.cs [Dise\u00F1o]",
               "DocumentMoniker": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\FormChat.cs",
               "RelativeDocumentMoniker": "WindowsFormsApplication1\\FormChat.cs",
               "ToolTip": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\FormChat.cs [Dise\u00F1o]",
               "RelativeToolTip": "WindowsFormsApplication1\\FormChat.cs [Dise\u00F1o]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-12T19:16:13.962Z",
-              "EditorCaption": " [Dise\u00F1o]"
+              "WhenOpened": "2025-01-12T19:16:13.962Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "FormChat.cs",
               "DocumentMoniker": "C:\\Users\\swaga\\Documents\\GitHub\\SO_Casino_AMI\\clienteCasino_AMI\\WindowsFormsApplication1\\FormChat.cs",
               "RelativeDocumentMoniker": "WindowsFormsApplication1\\FormChat.cs",
@@ -99,8 +82,7 @@
               "RelativeToolTip": "WindowsFormsApplication1\\FormChat.cs",
               "ViewState": "AgIAADMAAAAAAAAAAAAgwEMAAAA1AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-12T19:16:13.963Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-01-12T19:16:13.963Z"
             }
           ]
         }
