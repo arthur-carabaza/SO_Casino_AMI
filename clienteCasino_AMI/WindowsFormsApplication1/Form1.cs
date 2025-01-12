@@ -176,12 +176,12 @@ namespace WindowsFormsApplication1
 
                     case 3: //RESULTADO QUERRY CON QUIEN HE ESTADO EN PARTIDA: 3/Juan,Carlos,Miguel
                         mensaje = trozos[1].Split('\0')[0];
-                        MessageBox.Show("Has estado en partida con" + mensaje);
+                        MessageBox.Show(mensaje);
                         break;
 
                     case 4: //RESULTADO QUERRY CUANTOS MENSAJES HE ENVIADO A...: 4/4
                         mensaje = trozos[1].Split('\0')[0];
-                        MessageBox.Show("Has enviado " + mensaje + "mensajes");
+                        MessageBox.Show(mensaje);
                         break;
 
                     case 5: //RESULTADO QUERRY QUE SALAS SE HAN CREADO DESDE X tiempo : 5/ Sala1; Juan,Miguel | Sala2: Juan,Alvaro | Sala3: Alvaro,Pablo
@@ -199,7 +199,7 @@ namespace WindowsFormsApplication1
                     case 7: //Notificacion de invitacion
 
                         mensaje = trozos[1].Split('\0')[0];
-                        DialogResult RespuestaInv = MessageBox.Show(mensaje + "le han invitado a una partida.\n Quiere unirse?", "Respuesta invitacion", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        DialogResult RespuestaInv = MessageBox.Show(mensaje + " le han invitado a una partida.\n Quiere unirse?", "Respuesta invitacion", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (RespuestaInv == DialogResult.Yes)
                         {
                             EresInvitado = true;
@@ -313,7 +313,7 @@ namespace WindowsFormsApplication1
             //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
             //al que deseamos conectarnos
             IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 50001);
+            IPEndPoint ipep = new IPEndPoint(direc, 50005);
 
 
             //Creamos el socket 

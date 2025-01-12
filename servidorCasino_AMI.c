@@ -344,24 +344,24 @@ void* AtenderClientes(void* socket)
 				{
 					if (strcmp(row[0], password) == 0)
 					{
-						sprintf(respuesta, "1/SI/Inicio de sesión correcto");
+						sprintf(respuesta, "1/SI/Inicio de session correcto");
 						strcpy(usuario_logueado, nombre);
 
 						// Ahora añadimos al cliente a la lista de conectados
 						pthread_mutex_lock(&mutex); //No me interrumpas ahora el proceso de este thread
 						if (PonConectado(&ListaContectados, nombre, sock_conn) == -1)
 						{
-							printf("La lista de conectados está llena\n");
+							printf("La lista de conectados esta llena\n");
 						}
 						else
 						{
-							printf("El cliente %s se ha añadido a la lista de conectados\n", nombre);
+							printf("El cliente %s se ha anadido a la lista de conectados\n", nombre);
 						}
 						pthread_mutex_unlock(&mutex); //Ya puedes interrumpir el proceso de este thread
 					}
 					else
 					{
-						sprintf(respuesta, "1/NO/Contraseña incorrecta");
+						sprintf(respuesta, "1/NO/Contrasenya incorrecta");
 					}
 				}
 				mysql_free_result(res);
@@ -402,142 +402,151 @@ void* AtenderClientes(void* socket)
 		//QUERIS DE SQL 
 		else if (codigo == 3 || codigo == 4 || codigo == 5)
 		{
-			if (session_iniciada == 0) {
-				sprintf(respuesta, "9/Debes iniciar primero");
+			//QUERRY CODIGO 3 CON QUIEN HE ESTADO EN SALA 3/0/nombre
+			if (codigo == 3)
+			{
+				char query[256];
+				sprintf(query, "SELECT DISTINCT J.usuario "
+						"FROM Jugadores J "
+						"JOIN Participantes P ON J.id = P.usuario_id "
+						"JOIN Salas S ON P.sala_id = S.id "
+						"WHERE S.id IN ("
+						"    SELECT sala_id "
+						"    FROM Participantes "
+						"    WHERE usuario_id = ("
+						"        SELECT id FROM Jugadores WHERE usuario = '%s'"
+						"    )"
+						"    AND S.idS = ("
+						"        SELECT idS FROM Salas JOIN Participantes ON Salas.id = Participantes.sala_id "
+						"        WHERE usuario_id = (SELECT id FROM Jugadores WHERE usuario = '%s')"
+						"        LIMIT 1"
+						"    )"
+						") AND J.usuario != '%s';", nombre, nombre, nombre);
+				
+				
+				//CONTROL DE ERROR POR SI DA ERROR LA QUERY
+				err = mysql_query(conn, query);
+				if (err != 0) {
+					printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
+					sprintf(respuesta, "3/Error en la base de datos");
+				}
+				else {
+					//SI NO DA ERROR CONSTRUIMOS LA RESPUESTA
+					//LA RESPUESTA SERA DEL ESTILO 3/Juan,Miguel,Carlos
+
+					MYSQL_RES* res = mysql_store_result(conn);
+					MYSQL_ROW row;
+					char coincidencias[1024] = "";
+
+					while ((row = mysql_fetch_row(res))) {
+						if (strlen(coincidencias) > 0) {
+							strcat(coincidencias, ",");
+						}
+						strcat(coincidencias, row[0]); // Agregamos cada nombre a la lista
+					}
+					mysql_free_result(res);
+
+					if (strlen(coincidencias) == 0) {
+						sprintf(respuesta, "3/No has coincidido con nadie aun");
+					}
+					else {
+						sprintf(respuesta, "3/Has estado en sala con: %s", coincidencias);
+					}
+				}
+			}
+			
+			//QUERY DE CUANTOS MENSAJES HE ENVIADO A UN DETERMINADO DESTINATARIO 4/0/nombre/destinatarip
+			else if (codigo == 4) { 
+				//Obtenemos el nombre del destinatario
+				p = strtok(NULL, "/");
+				char destinatario[20];
+				strcpy(destinatario, p);
+
+				//Querry para enviar mensajes enviados
+				char query[512];
+				sprintf(query,
+					"SELECT COUNT(m.id) "
+					"FROM Mensajes m "
+					"JOIN Participantes p1 ON m.usuario_id = p1.usuario_id "
+					"JOIN Participantes p2 ON p1.sala_id = p2.sala_id AND p1.usuario_id != p2.usuario_id "
+					"JOIN Jugadores j2 ON p2.usuario_id = j2.id "
+					"WHERE m.usuario_id = (SELECT id FROM Jugadores WHERE usuario = '%s') "
+					"AND j2.usuario = '%s'",
+					nombre, destinatario);
+
+				//CONTROL DE ERROR POR SI DA ERROR LA QUERY
+				err = mysql_query(conn, query);
+				if (err != 0) {
+					printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
+					sprintf(respuesta, "4/Error en la base de datos");
+				}
+				else {
+					//SI NO DA ERROR MONTAMOS EL MENSAJE DE RESPUESTA
+					// 4/Le has enviado 30 mensajes a Miguel
+
+					MYSQL_RES* res = mysql_store_result(conn);
+					MYSQL_ROW row = mysql_fetch_row(res);
+
+					if (row && row[0]) {
+						int num_mensajes = atoi(row[0]);
+						sprintf(respuesta, "4/Le has enviado %d mensajes a %s", num_mensajes, destinatario);
+					}
+					else {
+						sprintf(respuesta, "4/No le has enviado mensajes a %s", destinatario);
+					}
+					mysql_free_result(res);
+				}
 			}
 
-			else 
-			{
-				//QUERRY CODIGO 3 CON QUIEN HE ESTADO EN SALA 3/0/nombre
-				if (codigo == 3)
-				{
-					char query[256];
-					sprintf(query, "SELECT DISTINCT J.usuario FROM Jugadores J JOIN Participantes P ON J.id = P.usuario_id JOIN Salas S ON P.sala_id = S.id WHERE S.id IN (SELECT sala_id FROM Participantes WHERE usuario_id = (SELECT id FROM Jugadores WHERE usuario = '%s')) AND J.usuario != '%s';", nombre, nombre);
-					
-					//CONTROL DE ERROR POR SI DA ERROR LA QUERY
-					err = mysql_query(conn, query);
-					if (err != 0) {
-						printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
-						sprintf(respuesta, "3/Error en la base de datos");
-					}
-					else {
-						//SI NO DA ERROR CONSTRUIMOS LA RESPUESTA
-						//LA RESPUESTA SERA DEL ESTILO 3/Juan,Miguel,Carlos
+			//QUERRY DE QUE SALAS HA HABIDO EN UN DETERMINADO TIEMPO 5/0/nombre/fehca inicio/fecha fin. Las fechas se introducen asi: 2025-01-01 00:00:00/2025-01-11 23:59:59
+			else if (codigo == 5) { 
+				// Obtener las fechas desde el cliente
+				p = strtok(NULL, "/");
+				char fecha_inicio[20];
+				strcpy(fecha_inicio, p);
 
-						MYSQL_RES* res = mysql_store_result(conn);
-						MYSQL_ROW row;
-						char coincidencias[1024] = "";
+				p = strtok(NULL, "/");
+				char fecha_fin[20];
+				strcpy(fecha_fin, p);
 
-						while ((row = mysql_fetch_row(res))) {
-							if (strlen(coincidencias) > 0) {
-								strcat(coincidencias, ",");
-							}
-							strcat(coincidencias, row[0]); // Agregamos cada nombre a la lista
-						}
-						mysql_free_result(res);
-
-						if (strlen(coincidencias) == 0) {
-							sprintf(respuesta, "3/No has coincidido con nadie aún");
-						}
-						else {
-							sprintf(respuesta, "3/%s", coincidencias);
-						}
-					}
-				}
-				
-				//QUERY DE CUANTOS MENSAJES HE ENVIADO A UN DETERMINADO DESTINATARIO 4/0/nombre/destinatarip
-				else if (codigo == 4) { 
-					//Obtenemos el nombre del destinatario
-					p = strtok(NULL, "/");
-					char destinatario[20];
-					strcpy(destinatario, p);
-
-					//Querry para enviar mensajes enviados
+				// Query para obtener las salas y sus participantes
 					char query[512];
-					sprintf(query,
-						"SELECT COUNT(m.id) "
-						"FROM Mensajes m "
-						"JOIN Participantes p1 ON m.usuario_id = p1.usuario_id "
-						"JOIN Participantes p2 ON p1.sala_id = p2.sala_id AND p1.usuario_id != p2.usuario_id "
-						"JOIN Jugadores j2 ON p2.usuario_id = j2.id "
-						"WHERE m.usuario_id = (SELECT id FROM Jugadores WHERE usuario = '%s') "
-						"AND j2.usuario = '%s'",
-						nombre, destinatario);
+				sprintf(query,
+					"SELECT s.id AS sala_id, GROUP_CONCAT(j.usuario) AS participantes "
+					"FROM Salas s "
+					"JOIN Participantes p ON s.id = p.sala_id "
+					"JOIN Jugadores j ON p.usuario_id = j.id "
+					"WHERE s.fecha_creacion BETWEEN '%s' AND '%s' "
+					"GROUP BY s.id",
+					fecha_inicio, fecha_fin);
 
-					//CONTROL DE ERROR POR SI DA ERROR LA QUERY
-					err = mysql_query(conn, query);
-					if (err != 0) {
-						printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
-						sprintf(respuesta, "4/Error en la base de datos");
-					}
-					else {
-						//SI NO DA ERROR MONTAMOS EL MENSAJE DE RESPUESTA
-						// 4/Le has enviado 30 mensajes a Miguel
-
-						MYSQL_RES* res = mysql_store_result(conn);
-						MYSQL_ROW row = mysql_fetch_row(res);
-
-						if (row && row[0]) {
-							int num_mensajes = atoi(row[0]);
-							sprintf(respuesta, "4/Le has enviado %d mensajes a %s", num_mensajes, destinatario);
-						}
-						else {
-							sprintf(respuesta, "4/No le has enviado mensajes a %s", destinatario);
-						}
-						mysql_free_result(res);
-					}
+				//CONTROL DE ERROR POR SI LA QUERY DA ERROR
+				err = mysql_query(conn, query);
+				if (err != 0) {
+					printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
+					sprintf(respuesta, "5/Error al consultar las salas");
 				}
+				//SI NO DA ERROR MONTAMOS EL MENSAJE DE RESPUESTA
+				else {
+					MYSQL_RES* res = mysql_store_result(conn);
+					MYSQL_ROW row;
+					char resultado[1024] = "5/";
 
-				//QUERRY DE QUE SALAS HA HABIDO EN UN DETERMINADO TIEMPO 5/0/nombre/fehca inicio/fecha fin. Las fechas se introducen asi: 2025-01-01 00:00:00/2025-01-11 23:59:59
-				else if (codigo == 5) { 
-					// Obtener las fechas desde el cliente
-					p = strtok(NULL, "/");
-					char fecha_inicio[20];
-					strcpy(fecha_inicio, p);
+					while ((row = mysql_fetch_row(res))) {
+						char linea[256];
+						sprintf(linea, "Sala %s: %s | ", row[0], row[1]); // ID de sala y participantes
+						strcat(resultado, linea);
 
-					p = strtok(NULL, "/");
-					char fecha_fin[20];
-					strcpy(fecha_fin, p);
+						//EN EL CASO DE ENCONTRAR SALA DARA UN RESULTADO DEL SIGUENTE ESTILO:
+						// 5/ Sala 1: Juan, Miguel | Sala 2 : Miguel, Carlos |
 
-					// Query para obtener las salas y sus participantes
-						char query[512];
-					sprintf(query,
-						"SELECT s.id AS sala_id, GROUP_CONCAT(j.usuario) AS participantes "
-						"FROM Salas s "
-						"JOIN Participantes p ON s.id = p.sala_id "
-						"JOIN Jugadores j ON p.usuario_id = j.id "
-						"WHERE s.fecha_creacion BETWEEN '%s' AND '%s' "
-						"GROUP BY s.id",
-						fecha_inicio, fecha_fin);
-
-					//CONTROL DE ERROR POR SI LA QUERY DA ERROR
-					err = mysql_query(conn, query);
-					if (err != 0) {
-						printf("Error al consultar la base de datos: %s\n", mysql_error(conn));
-						sprintf(respuesta, "5/Error al consultar las salas");
 					}
-					//SI NO DA ERROR MONTAMOS EL MENSAJE DE RESPUESTA
-					else {
-						MYSQL_RES* res = mysql_store_result(conn);
-						MYSQL_ROW row;
-						char resultado[1024] = "5/";
+					mysql_free_result(res);
 
-						while ((row = mysql_fetch_row(res))) {
-							char linea[256];
-							sprintf(linea, "Sala %s: %s | ", row[0], row[1]); // ID de sala y participantes
-							strcat(resultado, linea);
-
-							//EN EL CASO DE ENCONTRAR SALA DARA UN RESULTADO DEL SIGUENTE ESTILO:
-							// 5/ Sala 1: Juan, Miguel | Sala 2 : Miguel, Carlos |
-
-						}
-						mysql_free_result(res);
-
-						if (strcmp(resultado, "5/") == 0) {
-							strcat(resultado, "No hay salas en el intervalo especificado");
-						}
-						strcpy(respuesta, resultado);
+					if (strcmp(resultado, "5/") == 0) {
+						strcat(resultado, "No hay salas en el intervalo especificado");
 					}
+					strcpy(respuesta, resultado);
 				}
 			}
 		}
@@ -556,7 +565,7 @@ void* AtenderClientes(void* socket)
 				pthread_mutex_unlock(&mutex);
 
 				if (socketInvitado != -1) {
-					sprintf(respuesta, "9/Invitación enviada a %s", nombre);
+					sprintf(respuesta, "9/Invitacion enviada a %s", nombre);
 					write(sock_conn, respuesta, strlen(respuesta));
 
 					if (idSalaActual == -1) { // Crear sala si no existe
@@ -569,7 +578,7 @@ void* AtenderClientes(void* socket)
 
 						//Añadimos la sala a la base de datos:
 						char query[256];
-						sprintf(query, "INSERT INTO Salas () VALUES ()"); // La fecha se genera automáticamente
+						sprintf(query, "INSERT INTO Salas (idS) VALUES (%d)", idSalaActual); // La fecha se genera automáticamente
 						if (mysql_query(conn, query)) {
 							printf("Error al insertar sala en la base de datos: %s\n", mysql_error(conn));
 						}
@@ -704,7 +713,7 @@ void* AtenderClientes(void* socket)
 			}
 			else 
 			{
-				printf("Error: No se encontró la sala para el socket %d\n", sock_conn);
+				printf("Error: No se encontro la sala para el socket %d\n", sock_conn);
 				sprintf(respuesta, "10/%d/Error al enviar el mensaje: sala no encontrada",numForms);
 				write(sock_conn, respuesta, strlen(respuesta));
 			}
@@ -828,7 +837,7 @@ void* AtenderClientes(void* socket)
 		// Elimina el cliente de la lista de conectados
 		if (EliminaConectado(&ListaContectados, usuario_logueado) == -1)
 		{
-			printf("No se encontró al cliente %s en la lista de conectados\n", usuario_logueado);
+			printf("No se encontro al cliente %s en la lista de conectados\n", usuario_logueado);
 		}
 		else
 		{
@@ -871,7 +880,7 @@ int main(int argc, char *argv[])
 	//htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	// escucharemos en el port 50000
-	serv_adr.sin_port = htons(50001);
+	serv_adr.sin_port = htons(50005);
 
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
@@ -889,7 +898,7 @@ int main(int argc, char *argv[])
 		printf ("Escuchando\n");
 		
 		sock_conn = accept(sock_listen, NULL, NULL);
-		printf ("He recibido conexi?n\n");
+		printf ("He recibido conexion\n");
 
 		sockets[i] = sock_conn;
 		//sock_conn es el socket que usaremos para este cliente
